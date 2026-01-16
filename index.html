@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>F34 Admin - Moderation Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --bg: #0f172a;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --text: #f8fafc;
+            --text-dim: #94a3b8;
+            --success: #22c55e;
+            --danger: #ef4444;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            background-image: radial-gradient(circle at top right, #1e1b4b, transparent),
+                              radial-gradient(circle at bottom left, #1e1b4b, transparent);
+        }
+
+        header {
+            width: 100%;
+            padding: 2rem;
+            text-align: center;
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        h1 { margin: 0; font-weight: 600; letter-spacing: -0.025em; }
+
+        .container {
+            width: 90%;
+            max-width: 1000px;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .card {
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+
+        .card:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .config-name { font-size: 1.25rem; font-weight: 600; }
+        .author { color: var(--text-dim); font-size: 0.875rem; }
+
+        pre {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            overflow-x: auto;
+            font-size: 0.875rem;
+            max-height: 200px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+        }
+
+        button {
+            padding: 0.5rem 1.5rem;
+            border-radius: 0.5rem;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: opacity 0.2s, transform 0.1s;
+        }
+
+        button:active { transform: scale(0.95); }
+
+        .btn-approve { background: var(--success); color: white; }
+        .btn-reject { background: var(--danger); color: white; }
+        .btn-login { background: var(--primary); color: white; padding: 1rem 2rem; font-size: 1.1rem; }
+
+        #login-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 60vh;
+        }
+
+        #admin-panel { display: none; width: 100%; }
+
+        .empty-state {
+            text-align: center;
+            padding: 4rem;
+            color: var(--text-dim);
+            font-size: 1.2rem;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>F34 Moderation Panel</h1>
+</header>
+
+<div class="container">
+    <div id="login-screen">
+        <p style="margin-bottom: 2rem; color: var(--text-dim);">Please sign in with your admin account to continue.</p>
+        <button class="btn-login" onclick="login()">Login with Google</button>
+    </div>
+
+    <div id="admin-panel">
+        <div id="config-list">
+            <!-- Configs will be loaded here -->
+            <div class="empty-state">Loading pending configurations...</div>
+        </div>
+    </div>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { getFirestore, collection, query, where, onSnapshot, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyA827pUzqfTpGpGbT9uKXKEjZo3hYl5ENo",
+        authDomain: "f34-di.firebaseapp.com",
+        projectId: "f34-di",
+        storageBucket: "f34-di.firebasestorage.app",
+        messagingSenderId: "660590227115",
+        appId: "1:660590227115:web:0f1ca3aa9464f2406c11ee",
+        measurementId: "G-K4625R9J1B"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const provider = new GoogleAuthProvider();
+
+    window.login = () => {
+        signInWithPopup(auth, provider).catch(err => alert(err.message));
+    };
+
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('admin-panel').style.display = 'block';
+            loadConfigs();
+        } else {
+            document.getElementById('login-screen').style.display = 'flex';
+            document.getElementById('admin-panel').style.display = 'none';
+        }
+    });
+
+    function loadConfigs() {
+        const q = query(collection(db, "shared_configs"), where("status", "==", "pending"));
+        onSnapshot(q, (snapshot) => {
+            const list = document.getElementById('config-list');
+            list.innerHTML = '';
+            
+            if (snapshot.empty) {
+                list.innerHTML = '<div class="empty-state">No pending configurations. Great job!</div>';
+                return;
+            }
+
+            snapshot.forEach((d) => {
+                const data = d.data();
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.innerHTML = `
+                    <div class="card-header">
+                        <div>
+                            <div class="config-name">${data.name}</div>
+                            <div class="author">by ${data.author}</div>
+                        </div>
+                        <div class="actions">
+                            <button class="btn-approve" onclick="updateStatus('${d.id}', 'approved')">Approve</button>
+                            <button class="btn-reject" onclick="updateStatus('${d.id}', 'rejected')">Reject</button>
+                        </div>
+                    </div>
+                    <div style="font-size: 0.9rem; color: var(--text-dim);">${data.description || 'No description'}</div>
+                    <pre>${JSON.stringify(JSON.parse(data.config_json), null, 2)}</pre>
+                `;
+                list.appendChild(card);
+            });
+        });
+    }
+
+    window.updateStatus = async (id, status) => {
+        try {
+            await updateDoc(doc(db, "shared_configs", id), { status: status });
+        } catch (err) {
+            alert("Error updating status: " + err.message);
+        }
+    };
+</script>
+
+</body>
+</html>
