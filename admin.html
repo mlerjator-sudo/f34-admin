@@ -160,11 +160,13 @@
         </header>
 
         <!-- Tabs -->
-        <div class="flex gap-8 border-b border-white/10 mb-8">
+        <div class="flex flex-wrap gap-4 md:gap-8 border-b border-white/10 mb-8">
             <button onclick="switchTab('configs')" id="tab-configs"
                 class="tab-btn active pb-4 font-bold text-lg transition-all">Configurations</button>
             <button onclick="switchTab('players')" id="tab-players"
                 class="tab-btn pb-4 font-bold text-lg transition-all">Players</button>
+            <button onclick="switchTab('support')" id="tab-support"
+                class="tab-btn pb-4 font-bold text-lg transition-all">Support Center</button>
         </div>
 
         <!-- Configs Section -->
@@ -183,8 +185,8 @@
 
         <!-- Players Section -->
         <div id="section-players" class="hidden">
-            <div class="glass overflow-hidden">
-                <table class="w-full text-left">
+            <div class="glass overflow-x-auto">
+                <table class="w-full text-left min-w-[600px]">
                     <thead class="bg-white/5 border-b border-white/10">
                         <tr>
                             <th class="p-4 font-bold">Player</th>
@@ -198,6 +200,15 @@
                         <!-- Players injected via JS -->
                     </tbody>
                 </table>
+            </div>
+        </div>
+
+        <!-- Support Section -->
+        <div id="section-support" class="hidden">
+            <div id="support-list" class="space-y-6">
+                <div class="glass p-12 text-center text-xl animate-pulse">
+                    Loading support tickets...
+                </div>
             </div>
         </div>
     </div>
@@ -239,7 +250,7 @@
 
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, signInWithPopup, signInWithRedirect, getRedirectResult, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { initializeFirestore, collection, query, where, onSnapshot, getDocs, doc, updateDoc, deleteDoc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { initializeFirestore, collection, query, where, onSnapshot, getDocs, doc, updateDoc, deleteDoc, getDoc, setDoc, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyA827pUzqfTpGpGbT9uKXKEjZo3hYl5ENo",
@@ -258,6 +269,7 @@
         let currentCategory = 'all';
         let allConfigs = [];
         let allPlayers = [];
+        let allTickets = [];
         let dataLoaded = false;
         let currentLang = localStorage.getItem('f34_lang') || 'en';
         let activeTab = 'configs';
@@ -267,15 +279,16 @@
         const i18n = {
             en: {
                 adminLogin: "F34 Admin Login", loginText: "Sign in with Google", modPanel: "Moderation Panel", hub: "Community Hub", login: "Login with Google", logout: "Logout", admin: "Admin", all: "All", loading: "Loading pending configurations...", approve: "Approve", reject: "Reject", raw: "View Raw JSON", noPending: "No pending configurations.", noResults: "No results in this category.", noDesc: "No description.",
-                players: "Players", configs: "Configurations", email: "Email", warnings: "Warnings", status: "Status", actions: "Actions", ban: "Ban", warn: "Warn", delete: "Delete Account", banDuration: "Ban Duration (hours)", active: "Active", banned: "Banned",
+                players: "Players", configs: "Configurations", support: "Support Center", email: "Email", warnings: "Warnings", status: "Status", actions: "Actions", ban: "Ban", unban: "Unban", warn: "Warn", delete: "Delete Account", banDuration: "Ban Duration (hours)", active: "Active", banned: "Banned",
+                ticketTitle: "Support Ticket", ticketUser: "User", ticketDate: "Date", ticketContent: "Message", ticketDelete: "Delete Ticket", noTickets: "No support tickets found.",
                 categories: { Adventure: "Adventure", Horror: "Horror", Decoration: "Decoration", Economy: "Economy", Equipment: "Equipment", Food: "Food", "Game Mechanics": "Game Mechanics", Library: "Library", Magic: "Magic", Management: "Management", Minigame: "Minigame", Mobs: "Mobs", Optimization: "Optimization", Social: "Social", Storage: "Storage", Technology: "Technology", Transportation: "Transportation", Utility: "Utility", "World Gen": "World Gen", General: "General", Convenience: "Convenience" }
             },
             ko: {
                 adminLogin: "F34 관리자 로그인", loginText: "Google로 로그인", modPanel: "관리자 패널", hub: "커뮤니티 허브", login: "Google로 로그인", logout: "로그아웃", admin: "관리자", all: "전체", loading: "대기 중인 설정을 불러오는 중...", approve: "승인", reject: "거절", raw: "원본 JSON 보기", noPending: "대기 중인 설정이 없습니다.", noResults: "이 카테고리에 결과가 없습니다.", noDesc: "설명이 없습니다.",
-                players: "플레이어", configs: "설정 목록", email: "이메일", warnings: "경고", status: "상태", actions: "작업", ban: "차단", warn: "경고", delete: "계정 삭제", banDuration: "차단 시간 (시간)", active: "활성", banned: "차단됨",
+                players: "플레이어", configs: "설정 목록", support: "고객 센터", email: "이메일", warnings: "경고", status: "상태", actions: "작업", ban: "차단", unban: "차단 해제", warn: "경고", delete: "계정 삭제", banDuration: "차단 시간 (시간)", active: "활성", banned: "차단됨",
+                ticketTitle: "고객 문의", ticketUser: "사용자", ticketDate: "날짜", ticketContent: "내용", ticketDelete: "문의 삭제", noTickets: "등록된 문의가 없습니다.",
                 categories: { Adventure: "모험", Horror: "공포", Decoration: "장식", Economy: "경제", Equipment: "장비", Food: "음식", "Game Mechanics": "게임 메커니즘", Library: "라이브러리", Magic: "마법", Management: "관리", Minigame: "미니게임", Mobs: "몹", Optimization: "최적화", Social: "소셜", Storage: "저장", Technology: "기술", Transportation: "이동수단", Utility: "유틸리티", "World Gen": "월드 생성", General: "일반", Convenience: "편의성" }
             }
-            // ... other languages can be added similarly
         };
 
         // --- UI Functions ---
@@ -289,9 +302,12 @@
             activeTab = tab;
             document.getElementById('section-configs').classList.toggle('hidden', tab !== 'configs');
             document.getElementById('section-players').classList.toggle('hidden', tab !== 'players');
+            document.getElementById('section-support').classList.toggle('hidden', tab !== 'support');
             document.getElementById('tab-configs').classList.toggle('active', tab === 'configs');
             document.getElementById('tab-players').classList.toggle('active', tab === 'players');
+            document.getElementById('tab-support').classList.toggle('active', tab === 'support');
             if (tab === 'players') fetchPlayers();
+            if (tab === 'support') fetchTickets();
         };
 
         function updateUI() {
@@ -307,6 +323,7 @@
             renderCategories();
             renderConfigs();
             if (activeTab === 'players') renderPlayers();
+            if (activeTab === 'support') renderTickets();
         }
 
         function renderCategories() {
@@ -472,6 +489,7 @@
                             <input type="number" id="ban-hours" placeholder="${t.banDuration}" class="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-blue-500">
                             <button onclick="banPlayer('${player.email}')" class="btn-reject px-6 py-2 rounded-xl font-bold text-sm">${t.ban}</button>
                         </div>
+                        ${isBanned ? `<button onclick="unbanPlayer('${player.email}')" class="btn-blue px-6 py-2 rounded-xl font-bold text-sm">${t.unban}</button>` : ''}
                         <button onclick="warnPlayer('${player.email}')" class="btn-warning px-6 py-2 rounded-xl font-bold text-sm">${t.warn}</button>
                         <button onclick="deletePlayer('${player.email}')" class="bg-red-600/20 text-red-500 border border-red-500/20 px-6 py-2 rounded-xl font-bold text-sm hover:bg-red-600/30 transition-colors">${t.delete}</button>
                     </div>
@@ -527,6 +545,15 @@
             } catch (e) { alert("Failed to ban player."); }
         };
 
+        window.unbanPlayer = async (email) => {
+            try {
+                await updateDoc(doc(db, "users", email), { ban_until: null });
+                alert("Player unbanned.");
+                fetchPlayers();
+                showPlayerDetails(email);
+            } catch (e) { alert("Failed to unban player."); }
+        };
+
         window.warnPlayer = async (email) => {
             try {
                 const playerRef = doc(db, "users", email);
@@ -556,6 +583,58 @@
                 alert("Configuration deleted.");
                 showPlayerDetails(email);
             } catch (e) { alert("Failed to delete configuration."); }
+        };
+
+        // --- Support Center Functions ---
+        async function fetchTickets() {
+            try {
+                const q = query(collection(db, "support_tickets"), orderBy("timestamp", "desc"));
+                const snap = await getDocs(q);
+                allTickets = [];
+                snap.forEach(doc => allTickets.push({ id: doc.id, ...doc.data() }));
+                renderTickets();
+            } catch (e) { log("Fetch Tickets Error: " + e.message); }
+        }
+
+        function renderTickets() {
+            const t = i18n[currentLang] || i18n.en;
+            const supportList = document.getElementById('support-list');
+            if (!supportList) return;
+
+            if (allTickets.length === 0) {
+                supportList.innerHTML = `<div class="glass p-12 text-center text-xl">${t.noTickets}</div>`;
+                return;
+            }
+
+            supportList.innerHTML = '';
+            allTickets.forEach(ticket => {
+                const date = new Date(ticket.timestamp).toLocaleString();
+                const div = document.createElement('div');
+                div.className = "glass p-6 card-hover";
+                div.innerHTML = `
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <h3 class="text-xl font-bold">${t.ticketTitle}</h3>
+                            <p class="text-slate-400 text-sm">${t.ticketUser}: ${ticket.email} (${ticket.mc_name || 'Unknown'})</p>
+                            <p class="text-slate-500 text-xs">${t.ticketDate}: ${date}</p>
+                        </div>
+                        <button onclick="deleteTicket('${ticket.id}')" class="p-2 text-red-400 hover:bg-red-400/10 rounded-lg transition-colors" title="${t.ticketDelete}">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                        </button>
+                    </div>
+                    <div class="bg-white/5 p-4 rounded-xl border border-white/5 text-slate-300 whitespace-pre-wrap">${ticket.message}</div>
+                `;
+                supportList.appendChild(div);
+            });
+        }
+
+        window.deleteTicket = async (id) => {
+            if (!confirm("Delete this ticket?")) return;
+            try {
+                await deleteDoc(doc(db, "support_tickets", id));
+                alert("Ticket deleted.");
+                fetchTickets();
+            } catch (e) { alert("Failed to delete ticket."); }
         };
 
         window.updateStatus = async (id, status) => {
