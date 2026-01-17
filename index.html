@@ -106,35 +106,51 @@
         let currentCategory = 'all';
         let allConfigs = [];
 
-        authBtn.onclick = () => {
+        authBtn.onclick = async () => {
             if (currentUser) {
                 signOut(auth);
             } else {
-                signInWithPopup(auth, provider);
+                try {
+                    await signInWithPopup(auth, provider);
+                } catch (error) {
+                    console.error("Login Error:", error);
+                    if (error.code === 'auth/popup-closed-by-user') {
+                        alert('Login popup was closed. Please try again and complete the login process.');
+                    } else {
+                        alert('Login failed: ' + error.message);
+                    }
+                }
             }
         };
 
         onAuthStateChanged(auth, async (user) => {
             currentUser = user;
             if (user) {
-                // Check if linked with Minecraft
-                const userDoc = await getDoc(doc(db, "users", user.email));
-                if (userDoc.exists()) {
-                    mcAccount = userDoc.data();
-                    authBtn.innerHTML = `
-                        <div class="flex items-center gap-3">
-                            <img src="https://mc-heads.net/avatar/${mcAccount.mc_name}/32" class="w-8 h-8 rounded border border-white/20" alt="Skin">
-                            <div class="text-left">
-                                <div class="text-[10px] opacity-50 leading-none">Logged in as</div>
-                                <div class="font-bold">${mcAccount.mc_name}</div>
+                console.log("Checking link for email:", user.email);
+                try {
+                    const userDoc = await getDoc(doc(db, "users", user.email));
+                    if (userDoc.exists()) {
+                        mcAccount = userDoc.data();
+                        console.log("Link found:", mcAccount.mc_name);
+                        authBtn.innerHTML = `
+                            <div class="flex items-center gap-3">
+                                <img src="https://mc-heads.net/avatar/${mcAccount.mc_name}/32" class="w-8 h-8 rounded border border-white/20" alt="Skin">
+                                <div class="text-left">
+                                    <div class="text-[10px] opacity-50 leading-none">Logged in as</div>
+                                    <div class="font-bold">${mcAccount.mc_name}</div>
+                                </div>
                             </div>
-                        </div>
-                    `;
-                    authBtn.classList.add('bg-white/5');
-                } else {
-                    mcAccount = null;
-                    authBtn.textContent = 'Link Minecraft (Login in Mod)';
-                    alert('Your Google account is not linked with Minecraft. Please login using the F34 mod in Minecraft first.');
+                        `;
+                        authBtn.classList.add('bg-white/5');
+                    } else {
+                        console.warn("No link found in Firestore for:", user.email);
+                        mcAccount = null;
+                        authBtn.textContent = 'Link Minecraft (Login in Mod)';
+                        alert('Your Google account is not linked with Minecraft.\n\nTo link your account:\n1. Open Minecraft with the F34 mod.\n2. Click the Login button and sign in with this same Google account (' + user.email + ').\n3. Once linked, refresh this page.');
+                    }
+                } catch (e) {
+                    console.error("Firestore Check Error:", e);
+                    alert('Failed to verify account link. Please check your internet connection or try again later.');
                 }
             } else {
                 mcAccount = null;
