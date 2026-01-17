@@ -209,7 +209,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { initializeFirestore, collection, query, where, onSnapshot, doc, getDoc, updateDoc, increment, addDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-        import { getAuth, signInWithPopup, signInWithRedirect, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { initializeAuth, browserLocalPersistence, browserPopupRedirectResolver, signInWithPopup, signInWithRedirect, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyA827pUzqfTpGpGbT9uKXKEjZo3hYl5ENo",
@@ -528,8 +528,14 @@
         // --- Firebase Logic ---
         try {
             const app = initializeApp(firebaseConfig);
+
+            // Use initializeAuth for better persistence control in restricted environments
+            auth = initializeAuth(app, {
+                persistence: browserLocalPersistence,
+                popupRedirectResolver: browserPopupRedirectResolver
+            });
+
             db = initializeFirestore(app, { experimentalForceLongPolling: true });
-            auth = getAuth(app);
             provider = new GoogleAuthProvider();
 
             onAuthStateChanged(auth, async (user) => {
@@ -568,14 +574,23 @@
             });
 
             document.getElementById('auth-btn').onclick = async () => {
-                if (currentUser) signOut(auth);
-                else {
+                if (currentUser) {
+                    log("Signing out...");
+                    signOut(auth);
+                } else {
+                    log("Attempting login...");
                     try {
-                        await signInWithPopup(auth, provider).catch(async (err) => {
-                            if (['auth/popup-blocked', 'auth/popup-closed-by-user', 'auth/cancelled-popup-request'].includes(err.code)) await signInWithRedirect(auth, provider);
-                            else throw err;
+                        const result = await signInWithPopup(auth, provider).catch(async (err) => {
+                            log("Popup failed, trying redirect: " + err.code);
+                            if (['auth/popup-blocked', 'auth/popup-closed-by-user', 'auth/cancelled-popup-request', 'auth/internal-error'].includes(err.code)) {
+                                await signInWithRedirect(auth, provider);
+                            } else throw err;
                         });
-                    } catch (e) { alert("Login failed: " + e.message); }
+                        if (result) log("Login successful for: " + result.user.email);
+                    } catch (e) {
+                        log("Login error: " + e.message);
+                        alert("Login failed: " + e.message);
+                    }
                 }
             };
 
