@@ -96,48 +96,58 @@
 
     <div id="main-content">
         <!-- Header -->
-        <header class="max-w-7xl mx-auto px-6 pt-12 pb-8 flex flex-col items-center gap-8">
-            <div class="text-center flex flex-col items-center gap-4">
-                <img src="logo.png" alt="F34 Logo" class="h-32 w-auto object-contain rounded-3xl shadow-2xl">
-                <p class="text-slate-400 text-lg font-light" id="t-subtitle">Discover and download shared configurations
-                </p>
+        <header class="max-w-7xl mx-auto px-6 pt-16 pb-12 flex flex-col items-center gap-10">
+            <div class="text-center flex flex-col items-center gap-6">
+                <img src="logo.png" alt="F34 Logo"
+                    class="h-40 w-auto object-contain rounded-3xl shadow-2xl transition-transform hover:scale-105 duration-500">
+                <p class="text-slate-400 text-xl font-light tracking-wide" id="t-subtitle">Discover and download shared
+                    configurations</p>
             </div>
-            <div class="flex flex-wrap justify-center items-center gap-4">
+
+            <div class="flex flex-wrap justify-center items-center gap-6">
                 <!-- Language Switcher -->
-                <div class="glass p-1 flex gap-1 text-[10px] font-bold uppercase tracking-widest">
+                <div class="glass p-1.5 flex gap-1 text-[10px] font-bold uppercase tracking-widest">
                     <button onclick="setLang('en')" id="lang-en"
-                        class="px-3 py-1.5 rounded-lg transition-all hover:bg-white/5">EN</button>
+                        class="px-3 py-2 rounded-lg transition-all hover:bg-white/5">EN</button>
                     <button onclick="setLang('ko')" id="lang-ko"
-                        class="px-3 py-1.5 rounded-lg transition-all hover:bg-white/5">KO</button>
+                        class="px-3 py-2 rounded-lg transition-all hover:bg-white/5">KO</button>
                     <button onclick="setLang('jp')" id="lang-jp"
-                        class="px-3 py-1.5 rounded-lg transition-all hover:bg-white/5">JP</button>
+                        class="px-3 py-2 rounded-lg transition-all hover:bg-white/5">JP</button>
                     <button onclick="setLang('cn')" id="lang-cn"
-                        class="px-3 py-1.5 rounded-lg transition-all hover:bg-white/5">CN</button>
+                        class="px-3 py-2 rounded-lg transition-all hover:bg-white/5">CN</button>
                     <button onclick="setLang('es')" id="lang-es"
-                        class="px-3 py-1.5 rounded-lg transition-all hover:bg-white/5">ES</button>
+                        class="px-3 py-2 rounded-lg transition-all hover:bg-white/5">ES</button>
                     <button onclick="setLang('fr')" id="lang-fr"
-                        class="px-3 py-1.5 rounded-lg transition-all hover:bg-white/5">FR</button>
+                        class="px-3 py-2 rounded-lg transition-all hover:bg-white/5">FR</button>
                     <button onclick="setLang('de')" id="lang-de"
-                        class="px-3 py-1.5 rounded-lg transition-all hover:bg-white/5">DE</button>
+                        class="px-3 py-2 rounded-lg transition-all hover:bg-white/5">DE</button>
                     <button onclick="setLang('ru')" id="lang-ru"
-                        class="px-3 py-1.5 rounded-lg transition-all hover:bg-white/5">RU</button>
+                        class="px-3 py-2 rounded-lg transition-all hover:bg-white/5">RU</button>
                 </div>
 
-                <!-- Auth Button / Profile -->
-                <button id="auth-btn"
-                    class="glass px-6 py-2.5 font-bold hover:bg-white/10 transition-all border border-white/10">
-                    Login with Google
-                </button>
+                <div class="flex items-center gap-4">
+                    <!-- Auth Button / Profile -->
+                    <button id="auth-btn"
+                        class="glass px-8 py-3 font-bold hover:bg-white/10 transition-all border border-white/10 text-sm">
+                        Login with Google
+                    </button>
 
-                <!-- My Configs Button -->
-                <button id="my-configs-btn" onclick="openMyConfigsModal()"
-                    class="glass px-6 py-3 font-bold hover:bg-white/5 transition-all hidden" id="t-my-configs">My
-                    Configs</button>
+                    <!-- My Configs Button -->
+                    <button id="my-configs-btn" onclick="openMyConfigsModal()"
+                        class="glass px-8 py-3 font-bold hover:bg-white/5 transition-all hidden text-sm">
+                        My Configs
+                    </button>
 
-                <button onclick="openSupportModal()" class="glass px-6 py-3 font-bold hover:bg-white/5 transition-all"
-                    id="t-support">Support</button>
-                <a href="admin.html" id="t-admin-panel"
-                    class="glass px-6 py-3 font-bold hover:bg-white/5 transition-all hidden">Admin Panel</a>
+                    <button id="t-support" onclick="openSupportModal()"
+                        class="glass px-8 py-3 font-bold hover:bg-white/5 transition-all text-sm">
+                        Support
+                    </button>
+
+                    <a href="admin.html" id="t-admin-panel"
+                        class="glass px-8 py-3 font-bold hover:bg-white/5 transition-all hidden text-sm">
+                        Admin Panel
+                    </a>
+                </div>
             </div>
         </header>
 
@@ -287,6 +297,7 @@
                 deleteError: "Failed to delete configuration.",
                 statusPending: "Pending",
                 statusApproved: "Approved",
+                adminPanel: "Admin Panel",
                 categories: {
                     All: "All", Adventure: "Adventure", Horror: "Horror", Decoration: "Decoration", Economy: "Economy", Equipment: "Equipment", Food: "Food", "Game Mechanics": "Game Mechanics", Library: "Library", Magic: "Magic", Management: "Management", Minigame: "Minigame", Mobs: "Mobs", Optimization: "Optimization", Social: "Social", Storage: "Storage", Technology: "Technology", Transportation: "Transportation", Utility: "Utility", "World Gen": "World Gen", General: "General", Convenience: "Convenience"
                 }
@@ -332,6 +343,7 @@
                 deleteError: "삭제에 실패했습니다.",
                 statusPending: "승인 대기 중",
                 statusApproved: "승인됨",
+                adminPanel: "관리자 패널",
                 categories: {
                     All: "전체", Adventure: "모험", Horror: "공포", Decoration: "장식", Economy: "경제", Equipment: "장비", Food: "음식", "Game Mechanics": "게임 매커니즘", Library: "라이브러리", Magic: "마법", Management: "관리", Minigame: "미니게임", Mobs: "몹", Optimization: "최적화", Social: "소셜", Storage: "저장", Technology: "기술", Transportation: "운송", Utility: "유틸리티", "World Gen": "월드 생성", General: "일반", Convenience: "편의"
                 }
@@ -362,7 +374,7 @@
                 noButtons: "この設定にはカスタムボタンがありません。",
                 raw: "生データ",
                 close: "閉じる",
-                support: "カスタマーセンター",
+                support: "カスタ머센터",
                 supportTitle: "カスタマーセンター",
                 supportDesc: "問題や提案がありますか？メッセージを送ってください。",
                 supportSuccess: "お問い合わせが正常に受け付けられました！",
@@ -377,6 +389,7 @@
                 deleteError: "削除に失敗しました。",
                 statusPending: "承認待ち",
                 statusApproved: "承認済み",
+                adminPanel: "管理パネル",
                 categories: {
                     All: "すべて", Adventure: "冒険", Horror: "ホラー", Decoration: "装飾", Economy: "経済", Equipment: "装備", Food: "食べ物", "Game Mechanics": "ゲームメカニクス", Library: "ライブラリ", Magic: "魔法", Management: "管理", Minigame: "ミニゲーム", Mobs: "モブ", Optimization: "最適化", Social: "ソーシャル", Storage: "ストレージ", Technology: "技術", Transportation: "輸送", Utility: "ユーティリティ", "World Gen": "ワールド生成", General: "一般", Convenience: "便宜"
                 }
@@ -422,6 +435,7 @@
                 deleteError: "删除失败。",
                 statusPending: "待审批",
                 statusApproved: "已批准",
+                adminPanel: "管理面板",
                 categories: {
                     All: "全部", Adventure: "冒险", Horror: "恐怖", Decoration: "装饰", Economy: "经济", Equipment: "装备", Food: "食物", "Game Mechanics": "游戏机制", Library: "库", Magic: "魔法", Management: "管理", Minigame: "小游戏", Mobs: "生物", Optimization: "优化", Social: "社交", Storage: "存储", Technology: "技术", Transportation: "运输", Utility: "工具", "World Gen": "世界生成", General: "常规", Convenience: "便捷"
                 }
@@ -467,6 +481,7 @@
                 deleteError: "Error al eliminar la configuración.",
                 statusPending: "Pendiente",
                 statusApproved: "Aprobada",
+                adminPanel: "Panel de Admin",
                 categories: {
                     All: "Todo", Adventure: "Aventura", Horror: "Terror", Decoration: "Decoración", Economy: "Economía", Equipment: "Equipamiento", Food: "Comida", "Game Mechanics": "Mecánicas", Library: "Biblioteca", Magic: "Magia", Management: "Gestión", Minigame: "Minijuego", Mobs: "Criaturas", Optimization: "Optimización", Social: "Social", Storage: "Almacenamiento", Technology: "Tecnología", Transportation: "Transporte", Utility: "Utilidad", "World Gen": "Gen. de Mundo", General: "General", Convenience: "Conveniencia"
                 }
@@ -512,6 +527,7 @@
                 deleteError: "Échec de la suppression.",
                 statusPending: "En attente",
                 statusApproved: "Approuvée",
+                adminPanel: "Panneau Admin",
                 categories: {
                     All: "Tout", Adventure: "Aventure", Horror: "Horreur", Decoration: "Décoration", Economy: "Économie", Equipment: "Équipement", Food: "Nourriture", "Game Mechanics": "Mécaniques", Library: "Bibliothèque", Magic: "Magie", Management: "Gestion", Minigame: "Mini-jeu", Mobs: "Créatures", Optimization: "Optimisation", Social: "Social", Storage: "Stockage", Technology: "Technologie", Transportation: "Transport", Utility: "Utilité", "World Gen": "Gén. du Monde", General: "Général", Convenience: "Commodité"
                 }
@@ -557,8 +573,9 @@
                 deleteError: "Löschen fehlgeschlagen.",
                 statusPending: "Ausstehend",
                 statusApproved: "Genehmigt",
+                adminPanel: "Admin-Panel",
                 categories: {
-                    All: "Alle", Adventure: "Abenteuer", Horror: "Horror", Decoration: "Dekoration", Economy: "Wirtschaft", Equipment: "Ausrüstung", Food: "Essen", "Game Mechanics": "Spielmechanik", Library: "Bibliothek", Magic: "Magie", Management: "Verwaltung", Minigame: "Minispiel", Mobs: "Kreaturen", Optimization: "Optimierung", Social: "Sozial", Storage: "Lagerung", Technology: "Technologie", Transportation: "Transport", Utility: "Dienstprogramm", "World Gen": "Weltgen.", General: "Allgemein", Convenience: "Komfort"
+                    All: "Alle", Adventure: "Abenteuer", Horror: "Horror", Decoration: "Dekoration", Economy: "Wirtschaft", Equipment: "Ausrüstung", Food: "Essen", "Game Mechanics": "Spielmechanik", Library: "Bibliothek", Magic: "Magie", Management: "Verwaltung", Minigame: "Minispiel", Mobs: "Kreaturen", Optimization: "Optimierung", Social: "Sozial", Storage: "Lagerung", Technology: "Technologie", Transportation: "Transport", Utility: "Dienstprogramm", "World Gen": "Weltgen.", General: "Allgeme인", Convenience: "Komfort"
                 }
             },
             ru: {
@@ -602,6 +619,7 @@
                 deleteError: "Ошибка при удалении.",
                 statusPending: "Ожидание",
                 statusApproved: "Одобрено",
+                adminPanel: "Админ-панель",
                 categories: {
                     All: "Все", Adventure: "Приключения", Horror: "Хоррор", Decoration: "Декор", Economy: "Экономика", Equipment: "Снаряжение", Food: "Еда", "Game Mechanics": "Механики", Library: "Библиотека", Magic: "Магия", Management: "Управление", Minigame: "Мини-игра", Mobs: "Мобы", Optimization: "Оптимизация", Social: "Социальное", Storage: "Хранение", Technology: "Технологии", Transportation: "Транспорт", Utility: "Утилиты", "World Gen": "Ген. мира", General: "Общее", Convenience: "Удобство"
                 }
@@ -627,18 +645,17 @@
 
         function updateUI() {
             const t = i18n[currentLang] || i18n.en;
-            document.getElementById('t-subtitle').textContent = t.subtitle;
-            document.getElementById('t-loading').textContent = t.loading;
-            document.getElementById('t-support').textContent = t.support;
-            document.getElementById('t-support-title').textContent = t.supportTitle;
-            document.getElementById('t-support-desc').textContent = t.supportDesc;
-            document.getElementById('t-support-cancel').textContent = t.supportCancel || 'Cancel';
-            document.getElementById('t-support-submit').textContent = t.supportSubmit || 'Submit Ticket';
-            document.getElementById('t-banned-title').textContent = t.bannedTitle;
-            document.getElementById('t-banned-desc').textContent = t.bannedDesc;
-            document.getElementById('t-my-configs').textContent = t.myConfigs;
-            document.getElementById('t-my-configs-title').textContent = t.myConfigsTitle;
-            document.getElementById('t-admin-panel').textContent = i18n[currentLang].adminPanel || 'Admin Panel';
+            const subtitleEl = document.getElementById('t-subtitle');
+            const loadingEl = document.getElementById('t-loading');
+            const supportEl = document.getElementById('t-support');
+            const myConfigsBtn = document.getElementById('my-configs-btn');
+            const adminLink = document.getElementById('t-admin-panel');
+
+            if (subtitleEl) subtitleEl.textContent = t.subtitle;
+            if (loadingEl) loadingEl.textContent = t.loading;
+            if (supportEl) supportEl.textContent = t.support;
+            if (myConfigsBtn) myConfigsBtn.textContent = t.myConfigs;
+            if (adminLink) adminLink.textContent = t.adminPanel;
 
             document.querySelectorAll('[id^="lang-"]').forEach(btn => {
                 btn.classList.remove('bg-white/10', 'text-blue-400');
@@ -897,10 +914,12 @@
             const myConfigsBtn = document.getElementById('my-configs-btn');
             const adminLink = document.getElementById('t-admin-panel');
 
+            if (!btn) return;
+
             if (currentUser) {
-                myConfigsBtn.classList.remove('hidden');
+                if (myConfigsBtn) myConfigsBtn.classList.remove('hidden');
                 if (mcAccount) {
-                    btn.classList.remove('px-6');
+                    btn.classList.remove('px-8');
                     btn.classList.add('px-4');
                     btn.innerHTML = `
                         <div class="flex items-center gap-3">
@@ -911,18 +930,21 @@
                             </div>
                         </div>
                     `;
-                    if (mcAccount.mc_name === 'minseokkangfox') adminLink.classList.remove('hidden');
-                    else adminLink.classList.add('hidden');
+                    if (mcAccount.mc_name === 'minseokkangfox') {
+                        if (adminLink) adminLink.classList.remove('hidden');
+                    } else {
+                        if (adminLink) adminLink.classList.add('hidden');
+                    }
                 } else {
                     btn.textContent = t.linkMod;
-                    adminLink.classList.add('hidden');
+                    if (adminLink) adminLink.classList.add('hidden');
                 }
             } else {
                 btn.textContent = t.login;
                 btn.classList.remove('px-4');
-                btn.classList.add('px-6');
-                myConfigsBtn.classList.add('hidden');
-                adminLink.classList.add('hidden');
+                btn.classList.add('px-8');
+                if (myConfigsBtn) myConfigsBtn.classList.add('hidden');
+                if (adminLink) adminLink.classList.add('hidden');
             }
         }
 
