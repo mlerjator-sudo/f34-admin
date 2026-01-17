@@ -83,15 +83,23 @@
                 <p id="t-subtitle" class="text-slate-400 mt-2">Discover and download shared configurations</p>
             </div>
             <div class="flex flex-wrap items-center gap-4">
-                <div class="flex glass p-1 rounded-xl">
+                <div class="flex flex-wrap glass p-1 rounded-xl max-w-[280px] md:max-w-none">
                     <button onclick="setLang('en')" id="lang-en"
-                        class="px-3 py-1 rounded-lg text-xs font-bold transition-all">EN</button>
+                        class="px-2 py-1 rounded-lg text-[10px] font-bold transition-all">EN</button>
                     <button onclick="setLang('ko')" id="lang-ko"
-                        class="px-3 py-1 rounded-lg text-xs font-bold transition-all">KO</button>
+                        class="px-2 py-1 rounded-lg text-[10px] font-bold transition-all">KO</button>
                     <button onclick="setLang('jp')" id="lang-jp"
-                        class="px-3 py-1 rounded-lg text-xs font-bold transition-all">JP</button>
+                        class="px-2 py-1 rounded-lg text-[10px] font-bold transition-all">JP</button>
                     <button onclick="setLang('cn')" id="lang-cn"
-                        class="px-3 py-1 rounded-lg text-xs font-bold transition-all">CN</button>
+                        class="px-2 py-1 rounded-lg text-[10px] font-bold transition-all">CN</button>
+                    <button onclick="setLang('es')" id="lang-es"
+                        class="px-2 py-1 rounded-lg text-[10px] font-bold transition-all">ES</button>
+                    <button onclick="setLang('fr')" id="lang-fr"
+                        class="px-2 py-1 rounded-lg text-[10px] font-bold transition-all">FR</button>
+                    <button onclick="setLang('de')" id="lang-de"
+                        class="px-2 py-1 rounded-lg text-[10px] font-bold transition-all">DE</button>
+                    <button onclick="setLang('ru')" id="lang-ru"
+                        class="px-2 py-1 rounded-lg text-[10px] font-bold transition-all">RU</button>
                 </div>
                 <a href="admin.html" id="t-admin-panel"
                     class="px-6 py-2 rounded-lg glass hover:bg-white/10 transition-colors text-sm">Admin Panel</a>
@@ -293,6 +301,134 @@
                 categories: {
                     Adventure: "冒险", Horror: "恐怖", Decoration: "装饰", Economy: "经济", Equipment: "装备", Food: "食物", "Game Mechanics": "游戏机制", Library: "库", Magic: "魔法", Management: "管理", Minigame: "小游戏", Mobs: "生物", Optimization: "优化", Social: "社交", Storage: "存储", Technology: "技术", Transportation: "交通", Utility: "工具", "World Gen": "世界生成", General: "常规", Convenience: "便捷"
                 }
+            },
+            es: {
+                subtitle: "Descubre y descarga configuraciones compartidas",
+                adminPanel: "Panel de Admin",
+                login: "Iniciar sesión con Google",
+                logout: "Cerrar sesión",
+                linkMod: "Vincular Minecraft (Login en el Mod)",
+                loggedInAs: "Sesión iniciada como",
+                all: "Todo",
+                loading: "Cargando configuraciones...",
+                details: "Detalles",
+                download: "Descargar",
+                link: "Vincular",
+                loginToDownload: "Login",
+                noConfigs: "Aún no hay configuraciones.",
+                noResults: "Sin resultados en esta categoría.",
+                modalTitle: "Detalles de Configuración",
+                modalClose: "Cerrar",
+                info: "Información",
+                author: "Autor",
+                category: "Categoría",
+                downloads: "Descargas",
+                description: "Descripción",
+                buttons: "Botones",
+                raw: "Datos de Configuración",
+                noButtons: "Sin botones definidos.",
+                noDesc: "Sin descripción.",
+                loginAlert: "Por favor, inicia sesión con Google.",
+                linkAlert: "Por favor, vincula Minecraft en el mod primero.",
+                categories: {
+                    Adventure: "Aventura", Horror: "Terror", Decoration: "Decoración", Economy: "Economía", Equipment: "Equipo", Food: "Comida", "Game Mechanics": "Mecánicas", Library: "Biblioteca", Magic: "Magia", Management: "Gestión", Minigame: "Minijuego", Mobs: "Criaturas", Optimization: "Optimización", Social: "Social", Storage: "Almacén", Technology: "Tecnología", Transportation: "Transporte", Utility: "Utilidad", "World Gen": "Mundo", General: "General", Convenience: "Conveniencia"
+                }
+            },
+            fr: {
+                subtitle: "Découvrez et téléchargez des configurations partagées",
+                adminPanel: "Panneau Admin",
+                login: "Se connecter avec Google",
+                logout: "Déconnexion",
+                linkMod: "Lier Minecraft (Login dans le Mod)",
+                loggedInAs: "Connecté en tant que",
+                all: "Tout",
+                loading: "Chargement des configurations...",
+                details: "Détails",
+                download: "Télécharger",
+                link: "Lier",
+                loginToDownload: "Login",
+                noConfigs: "Aucune configuration trouvée.",
+                noResults: "Aucun résultat dans cette catégorie.",
+                modalTitle: "Détails de la Configuration",
+                modalClose: "Fermer",
+                info: "Information",
+                author: "Auteur",
+                category: "Catégorie",
+                downloads: "Téléchargements",
+                description: "Description",
+                buttons: "Boutons",
+                raw: "Données de Configuration",
+                noButtons: "Aucun bouton défini.",
+                noDesc: "Aucune description.",
+                loginAlert: "Veuillez vous connecter avec Google.",
+                linkAlert: "Veuillez d'abord lier Minecraft dans le mod.",
+                categories: {
+                    Adventure: "Aventure", Horror: "Horreur", Decoration: "Décoration", Economy: "Économie", Equipment: "Équipement", Food: "Nourriture", "Game Mechanics": "Mécaniques", Library: "Bibliothèque", Magic: "Magie", Management: "Gestion", Minigame: "Mini-jeu", Mobs: "Créatures", Optimization: "Optimisation", Social: "Social", Storage: "Stockage", Technology: "Technologie", Transportation: "Transport", Utility: "Utilité", "World Gen": "Monde", General: "Général", Convenience: "Confort"
+                }
+            },
+            de: {
+                subtitle: "Entdecke und lade geteilte Konfigurationen herunter",
+                adminPanel: "Admin-Panel",
+                login: "Mit Google anmelden",
+                logout: "Abmelden",
+                linkMod: "Minecraft verknüpfen (Login im Mod)",
+                loggedInAs: "Angemeldet als",
+                all: "Alle",
+                loading: "Konfigurationen werden geladen...",
+                details: "Details",
+                download: "Download",
+                link: "Verknüpfen",
+                loginToDownload: "Login",
+                noConfigs: "Noch keine Konfigurationen gefunden.",
+                noResults: "Keine Ergebnisse in dieser Kategorie.",
+                modalTitle: "Konfigurationsdetails",
+                modalClose: "Schließen",
+                info: "Informationen",
+                author: "Autor",
+                category: "Kategorie",
+                downloads: "Downloads",
+                description: "Beschreibung",
+                buttons: "Buttons",
+                raw: "Rohdaten",
+                noButtons: "Keine Buttons definiert.",
+                noDesc: "Keine Beschreibung vorhanden.",
+                loginAlert: "Bitte melde dich mit Google an.",
+                linkAlert: "Bitte verknüpfe zuerst Minecraft im Mod.",
+                categories: {
+                    Adventure: "Abenteuer", Horror: "Horror", Decoration: "Dekoration", Economy: "Wirtschaft", Equipment: "Ausrüstung", Food: "Essen", "Game Mechanics": "Mechaniken", Library: "Bibliothek", Magic: "Magie", Management: "Verwaltung", Minigame: "Minispiel", Mobs: "Kreaturen", Optimization: "Optimierung", Social: "Sozial", Storage: "Lagerung", Technology: "Technologie", Transportation: "Transport", Utility: "Nützliches", "World Gen": "Welt", General: "Allgemein", Convenience: "Komfort"
+                }
+            },
+            ru: {
+                subtitle: "Находите и скачивайте общие конфигурации",
+                adminPanel: "Панель админа",
+                login: "Войти через Google",
+                logout: "Выйти",
+                linkMod: "Привязать Minecraft (в моде)",
+                loggedInAs: "Вы вошли как",
+                all: "Все",
+                loading: "Загрузка конфигураций...",
+                details: "Подробнее",
+                download: "Скачать",
+                link: "Привязать",
+                loginToDownload: "Войти",
+                noConfigs: "Конфигурации пока не найдены.",
+                noResults: "Нет результатов в этой категории.",
+                modalTitle: "Детали конфигурации",
+                modalClose: "Закрыть",
+                info: "Информация",
+                author: "Автор",
+                category: "Категория",
+                downloads: "Загрузки",
+                description: "Описание",
+                buttons: "Кнопки",
+                raw: "Исходные данные",
+                noButtons: "Кнопки не определены.",
+                noDesc: "Описание отсутствует.",
+                loginAlert: "Пожалуйста, войдите через Google.",
+                linkAlert: "Пожалуйста, сначала привяжите Minecraft в моде.",
+                categories: {
+                    Adventure: "Приключения", Horror: "Хоррор", Decoration: "Декор", Economy: "Экономика", Equipment: "Снаряжение", Food: "Еда", "Game Mechanics": "Механики", Library: "Библиотека", Magic: "Магия", Management: "Управление", Minigame: "Мини-игра", Mobs: "Мобы", Optimization: "Оптимизация", Social: "Социальное", Storage: "Хранение", Technology: "Технологии", Transportation: "Транспорт", Utility: "Утилиты", "World Gen": "Генерация", General: "Общее", Convenience: "Удобство"
+                }
             }
         };
 
@@ -324,11 +460,11 @@
                 }
             }
 
-            ['lang-en', 'lang-ko', 'lang-jp', 'lang-cn'].forEach(id => {
+            ['lang-en', 'lang-ko', 'lang-jp', 'lang-cn', 'lang-es', 'lang-fr', 'lang-de', 'lang-ru'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) {
                     const lang = id.split('-')[1];
-                    el.className = `px-3 py-1 rounded-lg text-xs font-bold transition-all ${currentLang === lang ? 'bg-blue-500 text-white' : 'hover:bg-white/10'}`;
+                    el.className = `px-2 py-1 rounded-lg text-[10px] font-bold transition-all ${currentLang === lang ? 'bg-blue-500 text-white' : 'hover:bg-white/10'}`;
                 }
             });
 
