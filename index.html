@@ -124,14 +124,17 @@
                     <button onclick="setLang('ru')" id="lang-ru"
                         class="px-3 py-1.5 rounded-lg transition-all hover:bg-white/5">RU</button>
                 </div>
+
+                <!-- Auth Button / Profile (Moved to 2nd position) -->
+                <button id="auth-btn"
+                    class="glass px-6 py-2.5 font-bold hover:bg-white/10 transition-all border border-white/10">
+                    Login with Google
+                </button>
+
                 <button onclick="openSupportModal()" class="glass px-6 py-3 font-bold hover:bg-white/5 transition-all"
                     id="t-support">Support</button>
                 <a href="admin.html" id="t-admin-panel"
                     class="glass px-6 py-3 font-bold hover:bg-white/5 transition-all hidden">Admin Panel</a>
-                <button id="auth-btn"
-                    class="glass px-8 py-3 font-bold hover:bg-white/10 transition-all border border-white/10">
-                    Login with Google
-                </button>
             </div>
         </header>
 
@@ -529,7 +532,6 @@
         try {
             const app = initializeApp(firebaseConfig);
 
-            // Use initializeAuth for better persistence control in restricted environments
             auth = initializeAuth(app, {
                 persistence: browserLocalPersistence,
                 popupRedirectResolver: browserPopupRedirectResolver
@@ -559,13 +561,17 @@
                                 return;
                             }
                             if (mcAccount.mc_name === 'minseokkangfox') adminPanelBtn.classList.remove('hidden');
-                            authBtn.innerHTML = `<div class="flex items-center gap-3"><img src="https://mc-heads.net/avatar/${mcAccount.mc_name}/32" class="w-8 h-8 rounded border border-white/20"><div class="text-left"><div class="text-[10px] opacity-50">${t.loggedInAs}</div><div class="font-bold">${mcAccount.mc_name}</div></div></div>`;
+                            authBtn.classList.remove('px-6');
+                            authBtn.classList.add('px-4');
+                            authBtn.innerHTML = `<div class="flex items-center gap-3"><img src="https://mc-heads.net/avatar/${mcAccount.mc_name}/32" class="w-8 h-8 rounded border border-white/20"><div class="text-left"><div class="text-[10px] opacity-50">${t.loggedInAs}</div><div class="font-bold text-xs">${mcAccount.mc_name}</div></div></div>`;
                         } else {
                             authBtn.textContent = t.linkMod;
                         }
                     } catch (e) { log("Auth Doc Error: " + e.message); }
                 } else {
                     authBtn.textContent = t.login;
+                    authBtn.classList.remove('px-4');
+                    authBtn.classList.add('px-6');
                     adminPanelBtn.classList.add('hidden');
                     banMessage.classList.add('hidden');
                     mainContent.classList.remove('hidden');
@@ -596,7 +602,6 @@
 
             document.getElementById('ban-logout-btn').onclick = () => signOut(auth);
 
-            // Fetch shared configs with timeout fallback
             const q = query(collection(db, "shared_configs"), where("status", "==", "approved"));
             onSnapshot(q, (snap) => {
                 if (fetchTimeout) clearTimeout(fetchTimeout);
