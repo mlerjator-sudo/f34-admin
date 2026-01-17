@@ -74,7 +74,18 @@
 </head>
 
 <body class="p-4 md:p-8">
-    <div class="max-w-6xl mx-auto">
+    <div id="ban-message"
+        class="hidden fixed inset-0 z-[100] bg-black flex items-center justify-center text-center p-8">
+        <div class="max-w-md">
+            <h1 class="text-6xl font-bold text-red-500 mb-6">BANNED</h1>
+            <p id="t-banned-text" class="text-2xl text-white mb-8">You have been banned from this website.</p>
+            <div id="ban-expiry" class="text-slate-400 font-mono"></div>
+            <button onclick="signOut(auth)"
+                class="mt-12 px-8 py-3 rounded-xl glass hover:bg-white/10 transition-colors">Logout</button>
+        </div>
+    </div>
+
+    <div id="main-content" class="max-w-6xl mx-auto">
         <header class="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-6">
             <div>
                 <h1
@@ -101,6 +112,8 @@
                     <button onclick="setLang('ru')" id="lang-ru"
                         class="px-2 py-1 rounded-lg text-[10px] font-bold transition-all">RU</button>
                 </div>
+                <button onclick="openSupportModal()" id="t-support"
+                    class="px-6 py-2 rounded-lg glass hover:bg-white/10 transition-colors text-sm">Support</button>
                 <a href="admin.html" id="t-admin-panel"
                     class="hidden px-6 py-2 rounded-lg glass hover:bg-white/10 transition-colors text-sm">Admin
                     Panel</a>
@@ -147,11 +160,36 @@
         </div>
     </div>
 
+    <!-- Support Modal -->
+    <div id="support-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 modal-backdrop">
+        <div class="modal-content w-full max-w-xl rounded-3xl overflow-hidden flex flex-col">
+            <div class="p-6 border-b border-white/10 flex justify-between items-center">
+                <h2 id="t-support-title" class="text-2xl font-bold">Customer Center</h2>
+                <button onclick="closeSupportModal()" class="p-2 hover:bg-white/10 rounded-full transition-colors">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                        </path>
+                    </svg>
+                </button>
+            </div>
+            <div class="p-8 flex flex-col gap-6">
+                <p id="t-support-desc" class="text-slate-400 text-sm">Please describe your issue or request. Our team
+                    will review it as soon as possible.</p>
+                <textarea id="support-message" rows="6"
+                    class="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-sm focus:outline-none focus:border-blue-500 custom-scrollbar"
+                    placeholder="Enter your message here..."></textarea>
+                <button onclick="submitTicket()" id="t-support-submit"
+                    class="btn-download w-full py-4 rounded-2xl font-bold text-white transition-transform active:scale-95">Submit
+                    Ticket</button>
+            </div>
+        </div>
+    </div>
+
     <script type="module">
         const log = (msg) => console.log(`[F34] ${msg}`);
 
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { initializeFirestore, collection, query, where, onSnapshot, getDocs, doc, getDoc, updateDoc, increment } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { initializeFirestore, collection, query, where, onSnapshot, getDocs, doc, getDoc, updateDoc, increment, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
         import { getAuth, signInWithPopup, signInWithRedirect, getRedirectResult, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
         const firebaseConfig = {
@@ -176,260 +214,14 @@
 
         const i18n = {
             en: {
-                subtitle: "Discover and download shared configurations",
-                adminPanel: "Admin Panel",
-                login: "Login with Google",
-                logout: "Logout",
-                linkMod: "Link Minecraft (Login in Mod)",
-                loggedInAs: "Logged in as",
-                all: "All",
-                loading: "Loading configurations...",
-                details: "Details",
-                download: "Download",
-                link: "Link",
-                loginToDownload: "Login",
-                noConfigs: "No configurations found yet.",
-                noResults: "No results in this category.",
-                modalTitle: "Configuration Details",
-                modalClose: "Close",
-                info: "Information",
-                author: "Author",
-                category: "Category",
-                downloads: "Downloads",
-                description: "Description",
-                buttons: "Buttons",
-                raw: "Raw Configuration Data",
-                noButtons: "No buttons defined.",
-                noDesc: "No description provided.",
-                loginAlert: "Please login with Google.",
-                linkAlert: "Please link Minecraft in the mod first.",
-                categories: {
-                    Adventure: "Adventure", Horror: "Horror", Decoration: "Decoration", Economy: "Economy", Equipment: "Equipment", Food: "Food", "Game Mechanics": "Game Mechanics", Library: "Library", Magic: "Magic", Management: "Management", Minigame: "Minigame", Mobs: "Mobs", Optimization: "Optimization", Social: "Social", Storage: "Storage", Technology: "Technology", Transportation: "Transportation", Utility: "Utility", "World Gen": "World Gen", General: "General", Convenience: "Convenience"
-                }
+                subtitle: "Discover and download shared configurations", adminPanel: "Admin Panel", login: "Login with Google", logout: "Logout", linkMod: "Link Minecraft (Login in Mod)", loggedInAs: "Logged in as", all: "All", loading: "Loading configurations...", details: "Details", download: "Download", link: "Link", loginToDownload: "Login", noConfigs: "No configurations found yet.", noResults: "No results in this category.", modalTitle: "Configuration Details", modalClose: "Close", info: "Information", author: "Author", category: "Category", downloads: "Downloads", description: "Description", buttons: "Buttons", raw: "Raw Configuration Data", noButtons: "No buttons defined.", noDesc: "No description provided.", loginAlert: "Please login with Google.", linkAlert: "Please link Minecraft in the mod first.",
+                bannedText: "You have been banned from this website.", support: "Support", supportTitle: "Customer Center", supportDesc: "Please describe your issue or request. Our team will review it as soon as possible.", supportSubmit: "Submit Ticket", supportSuccess: "Ticket submitted successfully!", supportError: "Failed to submit ticket.",
+                categories: { Adventure: "Adventure", Horror: "Horror", Decoration: "Decoration", Economy: "Economy", Equipment: "Equipment", Food: "Food", "Game Mechanics": "Game Mechanics", Library: "Library", Magic: "Magic", Management: "Management", Minigame: "Minigame", Mobs: "Mobs", Optimization: "Optimization", Social: "Social", Storage: "Storage", Technology: "Technology", Transportation: "Transportation", Utility: "Utility", "World Gen": "World Gen", General: "General", Convenience: "Convenience" }
             },
             ko: {
-                subtitle: "공유된 설정을 탐색하고 다운로드하세요",
-                adminPanel: "관리자 패널",
-                login: "Google로 로그인",
-                logout: "로그아웃",
-                linkMod: "마인크래프트 연결 (모드에서 로그인)",
-                loggedInAs: "로그인됨:",
-                all: "전체",
-                loading: "설정을 불러오는 중...",
-                details: "상세 정보",
-                download: "다운로드",
-                link: "연결 필요",
-                loginToDownload: "로그인",
-                noConfigs: "아직 등록된 설정이 없습니다.",
-                noResults: "이 카테고리에 결과가 없습니다.",
-                modalTitle: "설정 상세 정보",
-                modalClose: "닫기",
-                info: "정보",
-                author: "제작자",
-                category: "카테고리",
-                downloads: "다운로드 수",
-                description: "설명",
-                buttons: "버튼 목록",
-                raw: "원본 설정 데이터",
-                noButtons: "정의된 버튼이 없습니다.",
-                noDesc: "설명이 없습니다.",
-                loginAlert: "Google 로그인이 필요합니다.",
-                linkAlert: "모드에서 먼저 마인크래프트 계정을 연결해 주세요.",
-                categories: {
-                    Adventure: "모험", Horror: "공포", Decoration: "장식", Economy: "경제", Equipment: "장비", Food: "음식", "Game Mechanics": "게임 메커니즘", Library: "라이브러리", Magic: "마법", Management: "관리", Minigame: "미니게임", Mobs: "몹", Optimization: "최적화", Social: "소셜", Storage: "저장", Technology: "기술", Transportation: "이동수단", Utility: "유틸리티", "World Gen": "월드 생성", General: "일반", Convenience: "편의성"
-                }
-            },
-            jp: {
-                subtitle: "共有された設定を探索してダウンロードしましょう",
-                adminPanel: "管理者パネル",
-                login: "Googleでログイン",
-                logout: "ログアウト",
-                linkMod: "Minecraft連携 (モッドでログイン)",
-                loggedInAs: "ログイン中:",
-                all: "すべて",
-                loading: "設定を読み込み中...",
-                details: "詳細情報",
-                download: "ダウンロード",
-                link: "連携が必要",
-                loginToDownload: "ログイン",
-                noConfigs: "まだ登録された設定がありません。",
-                noResults: "このカテゴリーには結果がありません。",
-                modalTitle: "設定の詳細情報",
-                modalClose: "閉じる",
-                info: "情報",
-                author: "作成者",
-                category: "カテゴリー",
-                downloads: "ダウンロード数",
-                description: "説明",
-                buttons: "ボタンリスト",
-                raw: "元の設定データ",
-                noButtons: "定義されたボタンがありません。",
-                noDesc: "説明がありません。",
-                loginAlert: "Googleログインが必要です。",
-                linkAlert: "モッドで先にMinecraftアカウントを連携してください。",
-                categories: {
-                    Adventure: "アドベンチャー", Horror: "ホラー", Decoration: "装飾", Economy: "経済", Equipment: "装備", Food: "食べ物", "Game Mechanics": "ゲームメカニクス", Library: "ライブラリ", Magic: "魔法", Management: "管理", Minigame: "ミニゲーム", Mobs: "モブ", Optimization: "最適化", Social: "ソーシャル", Storage: "ストレージ", Technology: "技術", Transportation: "交通", Utility: "ユーティリティ", "World Gen": "ワールド生成", General: "一般", Convenience: "利便性"
-                }
-            },
-            cn: {
-                subtitle: "探索并下载共享配置",
-                adminPanel: "管理面板",
-                login: "使用 Google 登录",
-                logout: "退出登录",
-                linkMod: "关联 Minecraft (在模组中登录)",
-                loggedInAs: "已登录为:",
-                all: "全部",
-                loading: "正在加载配置...",
-                details: "详细信息",
-                download: "下载",
-                link: "需要关联",
-                loginToDownload: "登录",
-                noConfigs: "尚无已注册的配置。",
-                noResults: "此类别下没有结果。",
-                modalTitle: "配置详细信息",
-                modalClose: "关闭",
-                info: "信息",
-                author: "作者",
-                category: "类别",
-                downloads: "下载次数",
-                description: "描述",
-                buttons: "按钮列表",
-                raw: "原始配置数据",
-                noButtons: "未定义按钮。",
-                noDesc: "无描述。",
-                loginAlert: "请先使用 Google 登录。",
-                linkAlert: "请先在模组中关联 Minecraft 账号。",
-                categories: {
-                    Adventure: "冒险", Horror: "恐怖", Decoration: "装饰", Economy: "经济", Equipment: "装备", Food: "食物", "Game Mechanics": "游戏机制", Library: "库", Magic: "魔法", Management: "管理", Minigame: "小游戏", Mobs: "生物", Optimization: "优化", Social: "社交", Storage: "存储", Technology: "技术", Transportation: "交通", Utility: "工具", "World Gen": "世界生成", General: "常规", Convenience: "便捷"
-                }
-            },
-            es: {
-                subtitle: "Descubre y descarga configuraciones compartidas",
-                adminPanel: "Panel de Admin",
-                login: "Iniciar sesión con Google",
-                logout: "Cerrar sesión",
-                linkMod: "Vincular Minecraft (Login en el Mod)",
-                loggedInAs: "Sesión iniciada como",
-                all: "Todo",
-                loading: "Cargando configuraciones...",
-                details: "Detalles",
-                download: "Descargar",
-                link: "Vincular",
-                loginToDownload: "Login",
-                noConfigs: "Aún no hay configuraciones.",
-                noResults: "Sin resultados en esta categoría.",
-                modalTitle: "Detalles de Configuración",
-                modalClose: "Cerrar",
-                info: "Información",
-                author: "Autor",
-                category: "Categoría",
-                downloads: "Descargas",
-                description: "Descripción",
-                buttons: "Botones",
-                raw: "Datos de Configuración",
-                noButtons: "Sin botones definidos.",
-                noDesc: "Sin descripción.",
-                loginAlert: "Por favor, inicia sesión con Google.",
-                linkAlert: "Por favor, vincula Minecraft en el mod primero.",
-                categories: {
-                    Adventure: "Aventura", Horror: "Terror", Decoration: "Decoración", Economy: "Economía", Equipment: "Equipo", Food: "Comida", "Game Mechanics": "Mecánicas", Library: "Biblioteca", Magic: "Magia", Management: "Gestión", Minigame: "Minijuego", Mobs: "Criaturas", Optimization: "Optimización", Social: "Social", Storage: "Almacén", Technology: "Tecnología", Transportation: "Transporte", Utility: "Utilidad", "World Gen": "Mundo", General: "General", Convenience: "Conveniencia"
-                }
-            },
-            fr: {
-                subtitle: "Découvrez et téléchargez des configurations partagées",
-                adminPanel: "Panneau Admin",
-                login: "Se connecter avec Google",
-                logout: "Déconnexion",
-                linkMod: "Lier Minecraft (Login dans le Mod)",
-                loggedInAs: "Connecté en tant que",
-                all: "Tout",
-                loading: "Chargement des configurations...",
-                details: "Détails",
-                download: "Télécharger",
-                link: "Lier",
-                loginToDownload: "Login",
-                noConfigs: "Aucune configuration trouvée.",
-                noResults: "Aucun résultat dans cette catégorie.",
-                modalTitle: "Détails de la Configuration",
-                modalClose: "Fermer",
-                info: "Information",
-                author: "Auteur",
-                category: "Catégorie",
-                downloads: "Téléchargements",
-                description: "Description",
-                buttons: "Boutons",
-                raw: "Données de Configuration",
-                noButtons: "Aucun bouton défini.",
-                noDesc: "Aucune description.",
-                loginAlert: "Veuillez vous connecter avec Google.",
-                linkAlert: "Veuillez d'abord lier Minecraft dans le mod.",
-                categories: {
-                    Adventure: "Aventure", Horror: "Horreur", Decoration: "Décoration", Economy: "Économie", Equipment: "Équipement", Food: "Nourriture", "Game Mechanics": "Mécaniques", Library: "Bibliothèque", Magic: "Magie", Management: "Gestion", Minigame: "Mini-jeu", Mobs: "Créatures", Optimization: "Optimisation", Social: "Social", Storage: "Stockage", Technology: "Technologie", Transportation: "Transport", Utility: "Utilité", "World Gen": "Monde", General: "Général", Convenience: "Confort"
-                }
-            },
-            de: {
-                subtitle: "Entdecke und lade geteilte Konfigurationen herunter",
-                adminPanel: "Admin-Panel",
-                login: "Mit Google anmelden",
-                logout: "Abmelden",
-                linkMod: "Minecraft verknüpfen (Login im Mod)",
-                loggedInAs: "Angemeldet als",
-                all: "Alle",
-                loading: "Konfigurationen werden geladen...",
-                details: "Details",
-                download: "Download",
-                link: "Verknüpfen",
-                loginToDownload: "Login",
-                noConfigs: "Noch keine Konfigurationen gefunden.",
-                noResults: "Keine Ergebnisse in dieser Kategorie.",
-                modalTitle: "Konfigurationsdetails",
-                modalClose: "Schließen",
-                info: "Informationen",
-                author: "Autor",
-                category: "Kategorie",
-                downloads: "Downloads",
-                description: "Beschreibung",
-                buttons: "Buttons",
-                raw: "Rohdaten",
-                noButtons: "Keine Buttons definiert.",
-                noDesc: "Keine Beschreibung vorhanden.",
-                loginAlert: "Bitte melde dich mit Google an.",
-                linkAlert: "Bitte verknüpfe zuerst Minecraft im Mod.",
-                categories: {
-                    Adventure: "Abenteuer", Horror: "Horror", Decoration: "Dekoration", Economy: "Wirtschaft", Equipment: "Ausrüstung", Food: "Essen", "Game Mechanics": "Mechaniken", Library: "Bibliothek", Magic: "Magie", Management: "Verwaltung", Minigame: "Minispiel", Mobs: "Kreaturen", Optimization: "Optimierung", Social: "Sozial", Storage: "Lagerung", Technology: "Technologie", Transportation: "Transport", Utility: "Nützliches", "World Gen": "Welt", General: "Allgemein", Convenience: "Komfort"
-                }
-            },
-            ru: {
-                subtitle: "Находите и скачивайте общие конфигурации",
-                adminPanel: "Панель админа",
-                login: "Войти через Google",
-                logout: "Выйти",
-                linkMod: "Привязать Minecraft (в моде)",
-                loggedInAs: "Вы вошли как",
-                all: "Все",
-                loading: "Загрузка конфигураций...",
-                details: "Подробнее",
-                download: "Скачать",
-                link: "Привязать",
-                loginToDownload: "Войти",
-                noConfigs: "Конфигурации пока не найдены.",
-                noResults: "Нет результатов в этой категории.",
-                modalTitle: "Детали конфигурации",
-                modalClose: "Закрыть",
-                info: "Информация",
-                author: "Автор",
-                category: "Категория",
-                downloads: "Загрузки",
-                description: "Описание",
-                buttons: "Кнопки",
-                raw: "Исходные данные",
-                noButtons: "Кнопки не определены.",
-                noDesc: "Описание отсутствует.",
-                loginAlert: "Пожалуйста, войдите через Google.",
-                linkAlert: "Пожалуйста, сначала привяжите Minecraft в моде.",
-                categories: {
-                    Adventure: "Приключения", Horror: "Хоррор", Decoration: "Декор", Economy: "Экономика", Equipment: "Снаряжение", Food: "Еда", "Game Mechanics": "Механики", Library: "Библиотека", Magic: "Магия", Management: "Управление", Minigame: "Мини-игра", Mobs: "Мобы", Optimization: "Оптимизация", Social: "Социальное", Storage: "Хранение", Technology: "Технологии", Transportation: "Транспорт", Utility: "Утилиты", "World Gen": "Генерация", General: "Общее", Convenience: "Удобство"
-                }
+                subtitle: "공유된 설정을 탐색하고 다운로드하세요", adminPanel: "관리자 패널", login: "Google로 로그인", logout: "로그아웃", linkMod: "마인크래프트 연결 (모드에서 로그인)", loggedInAs: "로그인됨:", all: "전체", loading: "설정을 불러오는 중...", details: "상세 정보", download: "다운로드", link: "연결 필요", loginToDownload: "로그인", noConfigs: "아직 등록된 설정이 없습니다.", noResults: "이 카테고리에 결과가 없습니다.", modalTitle: "설정 상세 정보", modalClose: "닫기", info: "정보", author: "제작자", category: "카테고리", downloads: "다운로드 수", description: "설명", buttons: "버튼 목록", raw: "원본 설정 데이터", noButtons: "정의된 버튼이 없습니다.", noDesc: "설명이 없습니다.", loginAlert: "Google 로그인이 필요합니다.", linkAlert: "모드에서 먼저 마인크래프트 계정을 연결해 주세요.",
+                bannedText: "당신은 차단 되었습니다.", support: "고객 센터", supportTitle: "고객 센터", supportDesc: "문의 사항이나 요청 사항을 입력해 주세요. 운영진이 확인 후 조치하겠습니다.", supportSubmit: "문의 제출", supportSuccess: "문의가 성공적으로 제출되었습니다!", supportError: "문의 제출에 실패했습니다.",
+                categories: { Adventure: "모험", Horror: "공포", Decoration: "장식", Economy: "경제", Equipment: "장비", Food: "음식", "Game Mechanics": "게임 메커니즘", Library: "라이브러리", Magic: "마법", Management: "관리", Minigame: "미니게임", Mobs: "몹", Optimization: "최적화", Social: "소셜", Storage: "저장", Technology: "기술", Transportation: "이동수단", Utility: "유틸리티", "World Gen": "월드 생성", General: "일반", Convenience: "편의성" }
             }
         };
 
@@ -441,24 +233,16 @@
         };
 
         function updateUI() {
-            const t = i18n[currentLang];
-            const subtitleEl = document.getElementById('t-subtitle');
-            const adminPanelEl = document.getElementById('t-admin-panel');
-            const loadingEl = document.getElementById('t-loading');
-            const modalCloseEl = document.getElementById('t-modal-close');
-
-            if (subtitleEl) subtitleEl.textContent = t.subtitle;
-            if (adminPanelEl) adminPanelEl.textContent = t.adminPanel;
-            if (loadingEl) loadingEl.textContent = t.loading;
-            if (modalCloseEl) modalCloseEl.textContent = t.modalClose;
+            const t = i18n[currentLang] || i18n.en;
+            document.querySelectorAll('[id^="t-"]').forEach(el => {
+                const key = el.id.replace('t-', '').replace(/-([a-z])/g, (g) => g[1].toUpperCase());
+                if (t[key]) el.textContent = t[key];
+            });
 
             const authBtn = document.getElementById('auth-btn');
             if (authBtn) {
-                if (!currentUser) {
-                    authBtn.textContent = t.login;
-                } else if (!mcAccount) {
-                    authBtn.textContent = t.linkMod;
-                }
+                if (!currentUser) authBtn.textContent = t.login;
+                else if (!mcAccount) authBtn.textContent = t.linkMod;
             }
 
             ['lang-en', 'lang-ko', 'lang-jp', 'lang-cn', 'lang-es', 'lang-fr', 'lang-de', 'lang-ru'].forEach(id => {
@@ -474,7 +258,7 @@
         }
 
         function renderCategories() {
-            const t = i18n[currentLang];
+            const t = i18n[currentLang] || i18n.en;
             const filterContainer = document.getElementById('category-filter');
             if (!filterContainer) return;
             filterContainer.innerHTML = '';
@@ -482,7 +266,6 @@
             const allBtn = document.createElement('button');
             allBtn.className = `filter-btn px-4 py-2 rounded-lg glass text-[10px] font-bold uppercase tracking-wider transition-all ${currentCategory === 'all' ? 'active' : ''}`;
             allBtn.textContent = t.all;
-            allBtn.dataset.category = 'all';
             allBtn.onclick = () => window.setFilter('all');
             filterContainer.appendChild(allBtn);
 
@@ -490,7 +273,6 @@
                 const btn = document.createElement('button');
                 btn.className = `filter-btn px-4 py-2 rounded-lg glass text-[10px] font-bold uppercase tracking-wider transition-all ${currentCategory === cat ? 'active' : ''}`;
                 btn.textContent = t.categories[cat] || cat;
-                btn.dataset.category = cat;
                 btn.onclick = () => window.setFilter(cat);
                 filterContainer.appendChild(btn);
             });
@@ -498,13 +280,13 @@
 
         window.setFilter = (cat) => {
             currentCategory = cat;
-            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.category === cat));
+            renderCategories();
             renderConfigs();
         }
 
         function renderConfigs() {
             if (!dataLoaded) return;
-            const t = i18n[currentLang];
+            const t = i18n[currentLang] || i18n.en;
             const configList = document.getElementById('config-list');
             if (!configList) return;
 
@@ -551,49 +333,32 @@
         window.showDetails = (id) => {
             const data = allConfigs.find(c => c.id === id);
             if (!data) return;
-
-            const t = i18n[currentLang];
+            const t = i18n[currentLang] || i18n.en;
             const modal = document.getElementById('details-modal');
             const modalTitle = document.getElementById('modal-title');
             const modalBody = document.getElementById('modal-body');
             const modalDownloadBtn = document.getElementById('modal-download-btn');
-
             modalTitle.textContent = t.modalTitle;
-
             let configObj = {};
             try { configObj = JSON.parse(data.config_json); } catch (e) { }
-
             modalBody.innerHTML = `
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div>
                         <h4 class="text-xs uppercase tracking-widest opacity-40 font-bold mb-4">${t.info}</h4>
                         <div class="space-y-4">
-                            <div>
-                                <div class="text-[10px] opacity-40">${t.author}</div>
-                                <div class="font-semibold text-blue-400">${data.author || 'Unknown'}</div>
-                            </div>
-                            <div>
-                                <div class="text-[10px] opacity-40">${t.category}</div>
-                                <div class="font-semibold">${t.categories[data.category] || data.category || t.categories.General}</div>
-                            </div>
-                            <div>
-                                <div class="text-[10px] opacity-40">${t.downloads}</div>
-                                <div class="font-semibold">${data.downloads || 0}</div>
-                            </div>
+                            <div><div class="text-[10px] opacity-40">${t.author}</div><div class="font-semibold text-blue-400">${data.author || 'Unknown'}</div></div>
+                            <div><div class="text-[10px] opacity-40">${t.category}</div><div class="font-semibold">${t.categories[data.category] || data.category || t.categories.General}</div></div>
+                            <div><div class="text-[10px] opacity-40">${t.downloads}</div><div class="font-semibold">${data.downloads || 0}</div></div>
                         </div>
-                        
                         <h4 class="text-xs uppercase tracking-widest opacity-40 font-bold mt-8 mb-4">${t.description}</h4>
                         <p class="text-slate-300 leading-relaxed">"${data.description || t.noDesc}"</p>
                     </div>
-                    
                     <div>
                         <h4 class="text-xs uppercase tracking-widest opacity-40 font-bold mb-4">${t.buttons} (${configObj.buttons ? configObj.buttons.length : 0})</h4>
                         <div class="space-y-3">
                             ${(configObj.buttons || []).map(btn => `
                                 <div class="glass p-3 rounded-xl border border-white/5">
-                                    <div class="flex items-center gap-2 mb-1">
-                                        <span class="text-sm font-bold">${btn.name || 'Unnamed Button'}</span>
-                                    </div>
+                                    <div class="flex items-center gap-2 mb-1"><span class="text-sm font-bold">${btn.name || 'Unnamed Button'}</span></div>
                                     <div class="text-[10px] font-mono opacity-50 break-all">${btn.command || 'No command'}</div>
                                 </div>
                             `).join('')}
@@ -601,7 +366,6 @@
                         </div>
                     </div>
                 </div>
-                
                 <div class="mt-8">
                     <details class="group">
                         <summary class="text-xs uppercase tracking-widest opacity-40 font-bold cursor-pointer hover:opacity-100 transition-opacity flex items-center gap-2">
@@ -612,7 +376,6 @@
                     </details>
                 </div>
             `;
-
             modalDownloadBtn.textContent = t.download;
             modalDownloadBtn.onclick = () => window.handleDownload(id);
             modal.classList.remove('hidden');
@@ -624,12 +387,8 @@
             document.body.style.overflow = 'auto';
         };
 
-        document.getElementById('details-modal').onclick = (e) => {
-            if (e.target.id === 'details-modal') closeModal();
-        };
-
         window.handleDownload = async (id) => {
-            const t = i18n[currentLang];
+            const t = i18n[currentLang] || i18n.en;
             if (!currentUser) { alert(t.loginAlert); return; }
             if (!mcAccount) { alert(t.linkAlert); return; }
             try {
@@ -650,6 +409,36 @@
             } catch (e) { alert("Download failed."); }
         };
 
+        // --- Support Functions ---
+        window.openSupportModal = () => {
+            const t = i18n[currentLang] || i18n.en;
+            if (!currentUser) { alert(t.loginAlert); return; }
+            document.getElementById('support-modal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        };
+
+        window.closeSupportModal = () => {
+            document.getElementById('support-modal').classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        };
+
+        window.submitTicket = async () => {
+            const t = i18n[currentLang] || i18n.en;
+            const msg = document.getElementById('support-message').value.trim();
+            if (!msg) return;
+            try {
+                await addDoc(collection(db, "support_tickets"), {
+                    email: currentUser.email,
+                    mc_name: mcAccount ? mcAccount.mc_name : 'Unknown',
+                    message: msg,
+                    timestamp: Date.now()
+                });
+                alert(t.supportSuccess);
+                document.getElementById('support-message').value = '';
+                closeSupportModal();
+            } catch (e) { alert(t.supportError); }
+        };
+
         // --- Firebase Logic ---
         try {
             const app = initializeApp(firebaseConfig);
@@ -659,9 +448,11 @@
 
             onAuthStateChanged(auth, async (user) => {
                 currentUser = user;
-                const t = i18n[currentLang];
+                const t = i18n[currentLang] || i18n.en;
                 const authBtn = document.getElementById('auth-btn');
                 const adminPanelBtn = document.getElementById('t-admin-panel');
+                const banMessage = document.getElementById('ban-message');
+                const mainContent = document.getElementById('main-content');
 
                 if (user) {
                     try {
@@ -669,41 +460,43 @@
                         if (userDoc.exists()) {
                             mcAccount = userDoc.data();
 
-                            // Show Admin Panel button only for minseokkangfox
-                            if (adminPanelBtn) {
-                                if (mcAccount.mc_name === 'minseokkangfox') {
-                                    adminPanelBtn.classList.remove('hidden');
-                                } else {
-                                    adminPanelBtn.classList.add('hidden');
-                                }
+                            // Check for ban
+                            if (mcAccount.ban_until && mcAccount.ban_until > Date.now()) {
+                                banMessage.classList.remove('hidden');
+                                mainContent.classList.add('hidden');
+                                const expiry = new Date(mcAccount.ban_until).toLocaleString();
+                                document.getElementById('ban-expiry').textContent = `Ban expires: ${expiry}`;
+                                return;
+                            } else {
+                                banMessage.classList.add('hidden');
+                                mainContent.classList.remove('hidden');
                             }
 
+                            if (adminPanelBtn && mcAccount.mc_name === 'minseokkangfox') adminPanelBtn.classList.remove('hidden');
                             if (authBtn) {
                                 authBtn.innerHTML = `<div class="flex items-center gap-3">
                                     <img src="https://mc-heads.net/avatar/${mcAccount.mc_name}/32" class="w-8 h-8 rounded border border-white/20" alt="Skin">
-                                    <div class="text-left">
-                                        <div class="text-[10px] opacity-50 leading-none">${t.loggedInAs}</div>
-                                        <div class="font-bold">${mcAccount.mc_name}</div>
-                                    </div>
+                                    <div class="text-left"><div class="text-[10px] opacity-50 leading-none">${t.loggedInAs}</div><div class="font-bold">${mcAccount.mc_name}</div></div>
                                 </div>`;
                             }
                         } else {
                             if (authBtn) authBtn.textContent = t.linkMod;
-                            if (adminPanelBtn) adminPanelBtn.classList.add('hidden');
                         }
                     } catch (e) { log("Auth Doc Error: " + e.message); }
                 } else {
                     if (authBtn) authBtn.textContent = t.login;
                     if (adminPanelBtn) adminPanelBtn.classList.add('hidden');
+                    banMessage.classList.add('hidden');
+                    mainContent.classList.remove('hidden');
                 }
-                renderConfigs();
+                updateUI();
             });
 
-            const authBtn = document.getElementById('auth-btn');
             if (authBtn) {
                 authBtn.onclick = async () => {
-                    if (currentUser) signOut(auth);
-                    else {
+                    if (currentUser) {
+                        if (confirm(i18n[currentLang].logout + "?")) signOut(auth);
+                    } else {
                         try {
                             await signInWithPopup(auth, provider).catch(async (err) => {
                                 if (['auth/popup-blocked', 'auth/popup-closed-by-user', 'auth/cancelled-popup-request'].includes(err.code)) {
@@ -716,56 +509,14 @@
             }
 
             const q = query(collection(db, "shared_configs"), where("status", "==", "approved"));
-
-            getDocs(q).then(snap => {
-                if (dataLoaded) return;
-                processSnapshot(snap);
-            }).catch(err => {
-                if (!dataLoaded) fetchViaREST();
-            });
-
-            setTimeout(() => {
-                if (!dataLoaded) fetchViaREST();
-            }, 3000);
-
-            async function fetchViaREST() {
-                if (dataLoaded) return;
-                try {
-                    const url = `https://firestore.googleapis.com/v1/projects/f34-di/databases/(default)/documents/shared_configs`;
-                    const response = await fetch(url);
-                    const data = await response.json();
-                    if (data.documents) {
-                        allConfigs = data.documents
-                            .map(doc => {
-                                const fields = doc.fields;
-                                const obj = { id: doc.name.split('/').pop() };
-                                for (let key in fields) {
-                                    obj[key] = fields[key].stringValue || fields[key].integerValue || fields[key].doubleValue || fields[key].booleanValue || null;
-                                }
-                                return obj;
-                            })
-                            .filter(c => c.status === 'approved');
-                        dataLoaded = true;
-                        renderConfigs();
-                    }
-                } catch (e) { log("REST Fallback Failed: " + e.message); }
-            }
-
-            function processSnapshot(snap) {
+            onSnapshot(q, (snap) => {
                 allConfigs = [];
                 snap.forEach(doc => allConfigs.push({ id: doc.id, ...doc.data() }));
                 dataLoaded = true;
                 renderConfigs();
-                onSnapshot(q, (s) => {
-                    allConfigs = [];
-                    s.forEach(doc => allConfigs.push({ id: doc.id, ...doc.data() }));
-                    renderConfigs();
-                });
-            }
+            });
 
-            // Initial UI update
             updateUI();
-
         } catch (e) { log("Init Error: " + e.message); }
     </script>
 </body>
