@@ -81,7 +81,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, collection, query, where, onSnapshot, doc, getDoc, updateDoc, increment } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-        import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getAuth, signInWithPopup, signInWithRedirect, getRedirectResult, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyA827pUzqfTpGpGbT9uKXKEjZo3hYl5ENo",
@@ -106,19 +106,35 @@
         let currentCategory = 'all';
         let allConfigs = [];
 
+        // Handle redirect result
+        getRedirectResult(auth).then((result) => {
+            if (result) {
+                console.log("Redirect login successful:", result.user.email);
+            }
+        }).catch((error) => {
+            console.error("Redirect Error:", error);
+            if (error.code !== 'auth/popup-closed-by-user') {
+                alert("Login failed: " + error.message);
+            }
+        });
+
         authBtn.onclick = async () => {
             if (currentUser) {
                 signOut(auth);
             } else {
                 try {
-                    await signInWithPopup(auth, provider);
+                    // Try popup first
+                    await signInWithPopup(auth, provider).catch(async (error) => {
+                        console.warn("Popup failed, trying redirect...", error.code);
+                        if (error.code === 'auth/popup-blocked' || error.code === 'auth/popup-closed-by-user' || error.code === 'auth/cancelled-popup-request') {
+                            await signInWithRedirect(auth, provider);
+                        } else {
+                            throw error;
+                        }
+                    });
                 } catch (error) {
                     console.error("Login Error:", error);
-                    if (error.code === 'auth/popup-closed-by-user') {
-                        alert('Login popup was closed. Please try again and complete the login process.');
-                    } else {
-                        alert('Login failed: ' + error.message);
-                    }
+                    alert('Login failed: ' + error.message);
                 }
             }
         };
@@ -243,7 +259,7 @@
         window.handleDownload = async (id) => {
             if (!currentUser) {
                 alert('Please login with Google to download configurations.');
-                signInWithPopup(auth, provider);
+                signInWithRedirect(auth, provider);
                 return;
             }
             if (!mcAccount) {
