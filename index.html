@@ -99,14 +99,12 @@
 
         <div class="mb-8">
             <div id="category-filter" class="flex flex-wrap gap-2">
-                <button
-                    class="filter-btn active px-4 py-2 rounded-lg glass text-[10px] font-bold uppercase tracking-wider transition-all"
-                    data-category="all" id="t-all">All</button>
+                <!-- Categories injected via JS -->
             </div>
         </div>
 
         <div id="config-list" class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div id="loading-state" class="col-span-full glass p-12 text-center text-xl animate-pulse" id="t-loading">
+            <div id="t-loading" class="col-span-full glass p-12 text-center text-xl animate-pulse">
                 Loading configurations...
             </div>
         </div>
@@ -230,22 +228,31 @@
 
         function updateUI() {
             const t = i18n[currentLang];
-            document.getElementById('t-subtitle').textContent = t.subtitle;
-            document.getElementById('t-admin-panel').textContent = t.adminPanel;
-            document.getElementById('t-all').textContent = t.all;
-            document.getElementById('t-loading').textContent = t.loading;
-            document.getElementById('t-modal-close').textContent = t.modalClose;
+            const subtitleEl = document.getElementById('t-subtitle');
+            const adminPanelEl = document.getElementById('t-admin-panel');
+            const loadingEl = document.getElementById('t-loading');
+            const modalCloseEl = document.getElementById('t-modal-close');
+
+            if (subtitleEl) subtitleEl.textContent = t.subtitle;
+            if (adminPanelEl) adminPanelEl.textContent = t.adminPanel;
+            if (loadingEl) loadingEl.textContent = t.loading;
+            if (modalCloseEl) modalCloseEl.textContent = t.modalClose;
 
             // Update auth button text if not logged in
-            if (!currentUser) {
-                document.getElementById('auth-btn').textContent = t.login;
-            } else if (!mcAccount) {
-                document.getElementById('auth-btn').textContent = t.linkMod;
+            const authBtn = document.getElementById('auth-btn');
+            if (authBtn) {
+                if (!currentUser) {
+                    authBtn.textContent = t.login;
+                } else if (!mcAccount) {
+                    authBtn.textContent = t.linkMod;
+                }
             }
 
             // Update language switcher styles
-            document.getElementById('lang-en').className = `px-3 py-1 rounded-lg text-xs font-bold transition-all ${currentLang === 'en' ? 'bg-blue-500 text-white' : 'hover:bg-white/10'}`;
-            document.getElementById('lang-ko').className = `px-3 py-1 rounded-lg text-xs font-bold transition-all ${currentLang === 'ko' ? 'bg-blue-500 text-white' : 'hover:bg-white/10'}`;
+            const langEnBtn = document.getElementById('lang-en');
+            const langKoBtn = document.getElementById('lang-ko');
+            if (langEnBtn) langEnBtn.className = `px-3 py-1 rounded-lg text-xs font-bold transition-all ${currentLang === 'en' ? 'bg-blue-500 text-white' : 'hover:bg-white/10'}`;
+            if (langKoBtn) langKoBtn.className = `px-3 py-1 rounded-lg text-xs font-bold transition-all ${currentLang === 'ko' ? 'bg-blue-500 text-white' : 'hover:bg-white/10'}`;
 
             // Re-render dynamic elements
             renderCategories();
@@ -311,8 +318,15 @@
 
             function renderCategories() {
                 const t = i18n[currentLang];
-                const allBtn = document.getElementById('t-all');
+                if (!filterContainer) return;
                 filterContainer.innerHTML = '';
+
+                // Create "All" button
+                const allBtn = document.createElement('button');
+                allBtn.className = `filter-btn px-4 py-2 rounded-lg glass text-[10px] font-bold uppercase tracking-wider transition-all ${currentCategory === 'all' ? 'active' : ''}`;
+                allBtn.textContent = t.all;
+                allBtn.dataset.category = 'all';
+                allBtn.onclick = () => window.setFilter('all');
                 filterContainer.appendChild(allBtn);
 
                 CATEGORIES.forEach(cat => {
@@ -320,7 +334,7 @@
                     btn.className = `filter-btn px-4 py-2 rounded-lg glass text-[10px] font-bold uppercase tracking-wider transition-all ${currentCategory === cat ? 'active' : ''}`;
                     btn.textContent = t.categories[cat] || cat;
                     btn.dataset.category = cat;
-                    btn.onclick = () => setFilter(cat);
+                    btn.onclick = () => window.setFilter(cat);
                     filterContainer.appendChild(btn);
                 });
             }
