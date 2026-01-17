@@ -44,43 +44,6 @@
             background: linear-gradient(135deg, #3b82f6, #2563eb);
         }
 
-        < !DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>F34 Admin Panel</title><script src="https://cdn.tailwindcss.com"></script><style>@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
-
-        body {
-            font-family: 'Inter', sans-serif;
-            background: radial-gradient(circle at top left, #1a1c2c, #0d0e14);
-            color: #e2e8f0;
-            min-height: 100vh;
-        }
-
-        .glass {
-            background: rgba(255, 255, 255, 0.03);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 1.5rem;
-        }
-
-        .card-hover {
-            transition: all 0.3s ease;
-        }
-
-        .card-hover:hover {
-            transform: translateY(-4px);
-            background: rgba(255, 255, 255, 0.05);
-        }
-
-        .btn-approve {
-            background: linear-gradient(135deg, #10b981, #059669);
-        }
-
-        .btn-reject {
-            background: linear-gradient(135deg, #ef4444, #dc2626);
-        }
-
-        .btn-blue {
-            background: linear-gradient(135deg, #3b82f6, #2563eb);
-        }
-
         .icon-badge {
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.1);
@@ -202,6 +165,7 @@
                             <div class="flex-1">
                                 <div class="flex items-center gap-3">
                                     <h3 class="text-2xl font-bold">${data.name}</h3>
+                                    <span class="px-2 py-1 rounded-md bg-blue-500/20 text-blue-400 text-xs font-bold uppercase tracking-wider border border-blue-500/30">${data.category || 'General'}</span>
                                 </div>
                                 <p class="text-slate-400 text-sm">by ${data.author}</p>
                                 <p class="mt-3 text-slate-300 italic">"${data.description}"</p>
