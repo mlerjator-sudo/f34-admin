@@ -87,7 +87,11 @@
         const statusEl = document.getElementById('debug-status');
         const log = (msg) => {
             console.log(`[F34] ${msg}`);
-            if (statusEl) statusEl.textContent = msg;
+            if (statusEl) {
+                const div = document.createElement('div');
+                div.textContent = msg;
+                statusEl.appendChild(div);
+            }
         };
 
         log("Script starting...");
@@ -105,233 +109,251 @@
             appId: "1:660590227115:web:0f1ca3aa9464f2406c11ee"
         };
 
-        log("Initializing App...");
-        const app = initializeApp(firebaseConfig);
+        try {
+            log("Initializing App...");
+            const app = initializeApp(firebaseConfig);
 
-        // Force Long Polling to bypass potential WebSocket blocks
-        const db = initializeFirestore(app, {
-            experimentalForceLongPolling: true
-        });
+            log("Initializing Firestore (Long Polling)...");
+            const db = initializeFirestore(app, {
+                experimentalForceLongPolling: true
+            });
 
-        const auth = getAuth(app);
-        const provider = new GoogleAuthProvider();
+            const auth = getAuth(app);
+            const provider = new GoogleAuthProvider();
 
-        const configList = document.getElementById('config-list');
-        const filterContainer = document.getElementById('category-filter');
-        const authBtn = document.getElementById('auth-btn');
+            const configList = document.getElementById('config-list');
+            const filterContainer = document.getElementById('category-filter');
+            const authBtn = document.getElementById('auth-btn');
 
-        let currentUser = null;
-        let mcAccount = null;
-        let currentCategory = 'all';
-        let allConfigs = [];
+            let currentUser = null;
+            let mcAccount = null;
+            let currentCategory = 'all';
+            let allConfigs = [];
 
-        log("Checking redirect result...");
-        getRedirectResult(auth).then((result) => {
-            if (result) {
-                log("Redirect login successful: " + result.user.email);
-            } else {
-                log("No redirect result.");
-            }
-        }).catch((error) => {
-            console.error("Redirect Error:", error);
-            log("Redirect Error: " + error.code);
-        });
+            log("Checking redirect result...");
+            getRedirectResult(auth).then((result) => {
+                if (result) log("Redirect login: " + result.user.email);
+                else log("No redirect result.");
+            }).catch((error) => {
+                log("Redirect Error: " + error.code);
+            });
 
-        log("Setting up Auth listener...");
-        onAuthStateChanged(auth, async (user) => {
-            log("Auth state: " + (user ? user.email : "Logged out"));
-            currentUser = user;
-            if (user) {
-                try {
-                    const userDoc = await getDoc(doc(db, "users", user.email));
-                    if (userDoc.exists()) {
-                        mcAccount = userDoc.data();
-                        authBtn.innerHTML = `
-                            <div class="flex items-center gap-3">
-                                <img src="https://mc-heads.net/avatar/${mcAccount.mc_name}/32" class="w-8 h-8 rounded border border-white/20" alt="Skin">
-                                <div class="text-left">
-                                    <div class="text-[10px] opacity-50 leading-none">Logged in as</div>
-                                    <div class="font-bold">${mcAccount.mc_name}</div>
+            log("Setting up Auth listener...");
+            onAuthStateChanged(auth, async (user) => {
+                log("Auth state: " + (user ? user.email : "Logged out"));
+                currentUser = user;
+                if (user) {
+                    try {
+                        const userDoc = await getDoc(doc(db, "users", user.email));
+                        if (userDoc.exists()) {
+                            mcAccount = userDoc.data();
+                            authBtn.innerHTML = `
+                                <div class="flex items-center gap-3">
+                                    <img src="https://mc-heads.net/avatar/${mcAccount.mc_name}/32" class="w-8 h-8 rounded border border-white/20" alt="Skin">
+                                    <div class="text-left">
+                                        <div class="text-[10px] opacity-50 leading-none">Logged in as</div>
+                                        <div class="font-bold">${mcAccount.mc_name}</div>
+                                    </div>
                                 </div>
-                            </div>
-                        `;
-                        authBtn.classList.add('bg-white/5');
-                    } else {
-                        mcAccount = null;
-                        authBtn.textContent = 'Link Minecraft (Login in Mod)';
-                    }
-                } catch (e) {
-                    console.error("Firestore User Check Error:", e);
-                }
-            } else {
-                mcAccount = null;
-                authBtn.textContent = 'Login with Google';
-                authBtn.classList.remove('bg-white/5');
-            }
-            renderConfigs();
-        });
-
-        authBtn.onclick = async () => {
-            if (currentUser) {
-                signOut(auth);
-            } else {
-                try {
-                    await signInWithPopup(auth, provider).catch(async (error) => {
-                        if (error.code === 'auth/popup-blocked' || error.code === 'auth/popup-closed-by-user' || error.code === 'auth/cancelled-popup-request') {
-                            await signInWithRedirect(auth, provider);
+                            `;
+                            authBtn.classList.add('bg-white/5');
                         } else {
-                            throw error;
+                            mcAccount = null;
+                            authBtn.textContent = 'Link Minecraft (Login in Mod)';
                         }
-                    });
-                } catch (error) {
-                    alert('Login failed: ' + error.message);
+                    } catch (e) {
+                        log("User Doc Error: " + e.message);
+                    }
+                } else {
+                    mcAccount = null;
+                    authBtn.textContent = 'Login with Google';
+                    authBtn.classList.remove('bg-white/5');
                 }
-            }
-        };
-
-        const CATEGORIES = [
-            "Adventure", "Horror", "Decoration", "Economy", "Equipment", "Food",
-            "Game Mechanics", "Library", "Magic", "Management", "Minigame", "Mobs",
-            "Optimization", "Social", "Storage", "Technology", "Transportation",
-            "Utility", "World Gen", "General", "Convenience"
-        ];
-
-        CATEGORIES.forEach(cat => {
-            const btn = document.createElement('button');
-            btn.className = 'filter-btn px-4 py-2 rounded-lg glass text-[10px] font-bold uppercase tracking-wider transition-all';
-            btn.textContent = cat;
-            btn.dataset.category = cat;
-            btn.onclick = () => setFilter(cat);
-            filterContainer.appendChild(btn);
-        });
-
-        document.querySelector('[data-category="all"]').onclick = () => setFilter('all');
-
-        function setFilter(cat) {
-            currentCategory = cat;
-            document.querySelectorAll('.filter-btn').forEach(btn => {
-                btn.classList.toggle('active', btn.dataset.category === cat);
+                renderConfigs();
             });
-            renderConfigs();
-        }
 
-        const q = query(collection(db, "shared_configs"), where("status", "==", "approved"));
+            authBtn.onclick = async () => {
+                if (currentUser) {
+                    signOut(auth);
+                } else {
+                    try {
+                        await signInWithPopup(auth, provider).catch(async (error) => {
+                            if (error.code === 'auth/popup-blocked' || error.code === 'auth/popup-closed-by-user' || error.code === 'auth/cancelled-popup-request') {
+                                await signInWithRedirect(auth, provider);
+                            } else {
+                                throw error;
+                            }
+                        });
+                    } catch (error) {
+                        alert('Login failed: ' + error.message);
+                    }
+                }
+            };
 
-        // Initial fetch using getDocs (more robust than onSnapshot for some networks)
-        log("Fetching initial data...");
-        const fetchTimeout = setTimeout(() => {
-            log("Fetch taking too long... checking connection.");
-            if (allConfigs.length === 0) {
-                statusEl.innerHTML = '<span class="text-yellow-400">Connection slow. Please check if Firebase is blocked or authorized domains are set.</span>';
-            }
-        }, 10000);
+            const CATEGORIES = [
+                "Adventure", "Horror", "Decoration", "Economy", "Equipment", "Food",
+                "Game Mechanics", "Library", "Magic", "Management", "Minigame", "Mobs",
+                "Optimization", "Social", "Storage", "Technology", "Transportation",
+                "Utility", "World Gen", "General", "Convenience"
+            ];
 
-        getDocs(q).then((snapshot) => {
-            clearTimeout(fetchTimeout);
-            log("Initial fetch complete. Count: " + snapshot.size);
-            allConfigs = [];
-            snapshot.forEach(doc => {
-                allConfigs.push({ id: doc.id, ...doc.data() });
+            CATEGORIES.forEach(cat => {
+                const btn = document.createElement('button');
+                btn.className = 'filter-btn px-4 py-2 rounded-lg glass text-[10px] font-bold uppercase tracking-wider transition-all';
+                btn.textContent = cat;
+                btn.dataset.category = cat;
+                btn.onclick = () => setFilter(cat);
+                filterContainer.appendChild(btn);
             });
-            renderConfigs();
 
-            // After initial fetch, setup real-time listener
-            log("Setting up real-time listener...");
-            onSnapshot(q, (snap) => {
-                log("Update received. Count: " + snap.size);
+            document.querySelector('[data-category="all"]').onclick = () => setFilter('all');
+
+            function setFilter(cat) {
+                currentCategory = cat;
+                document.querySelectorAll('.filter-btn').forEach(btn => {
+                    btn.classList.toggle('active', btn.dataset.category === cat);
+                });
+                renderConfigs();
+            }
+
+            const q = query(collection(db, "shared_configs"), where("status", "==", "approved"));
+            const qAll = collection(db, "shared_configs");
+
+            // Diagnostic: Test REST API
+            log("Testing REST API...");
+            fetch(`https://firestore.googleapis.com/v1/projects/f34-di/databases/(default)/documents/shared_configs?pageSize=1`)
+                .then(r => {
+                    log("REST Status: " + r.status);
+                    return r.json();
+                })
+                .then(data => {
+                    if (data.error) log("REST Error: " + data.error.message);
+                    else log("REST Success: Found " + (data.documents ? data.documents.length : 0) + " docs");
+                })
+                .catch(e => log("REST Failed: " + e.message));
+
+            log("Fetching data (filtered)...");
+            const fetchTimeout = setTimeout(() => {
+                log("Filtered fetch hang. Trying un-filtered...");
+                getDocs(qAll).then(snap => {
+                    log("Un-filtered success! Count: " + snap.size);
+                    if (snap.size > 0) {
+                        allConfigs = [];
+                        snap.forEach(doc => {
+                            const data = doc.data();
+                            if (data.status === 'approved') allConfigs.push({ id: doc.id, ...data });
+                        });
+                        renderConfigs();
+                    }
+                }).catch(err => {
+                    log("Un-filtered Error: " + err.message);
+                });
+            }, 8000);
+
+            getDocs(q).then((snapshot) => {
+                clearTimeout(fetchTimeout);
+                log("Filtered fetch complete. Count: " + snapshot.size);
                 allConfigs = [];
-                snap.forEach(doc => {
+                snapshot.forEach(doc => {
                     allConfigs.push({ id: doc.id, ...doc.data() });
                 });
                 renderConfigs();
-            }, (err) => {
-                console.error("Snapshot Error:", err);
-                log("Snapshot Error: " + err.code);
+
+                log("Setting up real-time listener...");
+                onSnapshot(q, (snap) => {
+                    log("Update received. Count: " + snap.size);
+                    allConfigs = [];
+                    snap.forEach(doc => {
+                        allConfigs.push({ id: doc.id, ...doc.data() });
+                    });
+                    renderConfigs();
+                }, (err) => {
+                    log("Snapshot Error: " + err.code);
+                });
+            }).catch((err) => {
+                clearTimeout(fetchTimeout);
+                log("Fetch Error: " + err.message);
             });
-        }).catch((err) => {
-            clearTimeout(fetchTimeout);
-            console.error("Initial Fetch Error:", err);
-            log("Fetch Error: " + err.message);
-            configList.innerHTML = `<div class="col-span-full glass p-12 text-center text-red-400 text-xl">Error: ${err.message}</div>`;
-        });
 
-        function renderConfigs() {
-            const filtered = currentCategory === 'all'
-                ? allConfigs
-                : allConfigs.filter(c => c.category === currentCategory);
+            function renderConfigs() {
+                const filtered = currentCategory === 'all'
+                    ? allConfigs
+                    : allConfigs.filter(c => c.category === currentCategory);
 
-            if (filtered.length === 0 && allConfigs.length > 0) {
-                configList.innerHTML = '<div class="col-span-full glass p-12 text-center text-xl">No configurations found in this category.</div>';
-                return;
-            } else if (allConfigs.length === 0) {
-                // Keep loading state if no data yet
-                return;
-            }
+                if (filtered.length === 0 && allConfigs.length > 0) {
+                    configList.innerHTML = '<div class="col-span-full glass p-12 text-center text-xl">No configurations found in this category.</div>';
+                    return;
+                } else if (allConfigs.length === 0) {
+                    return;
+                }
 
-            configList.innerHTML = '';
-            filtered.forEach((data) => {
-                const div = document.createElement('div');
-                div.className = 'glass p-6 card-hover flex flex-col justify-between';
+                configList.innerHTML = '';
+                filtered.forEach((data) => {
+                    const div = document.createElement('div');
+                    div.className = 'glass p-6 card-hover flex flex-col justify-between';
 
-                let btnSummary = '';
-                try {
-                    const config = JSON.parse(data.config_json);
-                    if (config.buttons) {
-                        btnSummary = `<div class="flex flex-wrap gap-2 mt-4">
-                            ${config.buttons.slice(0, 4).map(b => `<span class="icon-badge px-2 py-1 rounded text-[10px]">${b.name || 'Button'}</span>`).join('')}
-                            ${config.buttons.length > 4 ? `<span class="opacity-40 text-[10px]">+${config.buttons.length - 4} more</span>` : ''}
-                        </div>`;
-                    }
-                } catch (e) { }
+                    let btnSummary = '';
+                    try {
+                        const config = JSON.parse(data.config_json);
+                        if (config.buttons) {
+                            btnSummary = `<div class="flex flex-wrap gap-2 mt-4">
+                                ${config.buttons.slice(0, 4).map(b => `<span class="icon-badge px-2 py-1 rounded text-[10px]">${b.name || 'Button'}</span>`).join('')}
+                                ${config.buttons.length > 4 ? `<span class="opacity-40 text-[10px]">+${config.buttons.length - 4} more</span>` : ''}
+                            </div>`;
+                        }
+                    } catch (e) { }
 
-                div.innerHTML = `
-                    <div>
-                        <div class="flex justify-between items-start">
-                            <div>
-                                <h3 class="text-xl font-bold">${data.name || 'Untitled'}</h3>
-                                <span class="text-[10px] text-blue-400 font-bold uppercase tracking-wider">${data.category || 'General'}</span>
+                    div.innerHTML = `
+                        <div>
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h3 class="text-xl font-bold">${data.name || 'Untitled'}</h3>
+                                    <span class="text-[10px] text-blue-400 font-bold uppercase tracking-wider">${data.category || 'General'}</span>
+                                </div>
+                                <span class="text-[10px] opacity-40 font-mono">${data.downloads || 0} DLs</span>
                             </div>
-                            <span class="text-[10px] opacity-40 font-mono">${data.downloads || 0} DLs</span>
+                            <p class="text-slate-400 text-xs mt-1">by ${data.author ? data.author.split('@')[0] : 'Unknown'}</p>
+                            <p class="mt-4 text-sm text-slate-300 line-clamp-2">"${data.description || 'No description.'}"</p>
+                            ${btnSummary}
                         </div>
-                        <p class="text-slate-400 text-xs mt-1">by ${data.author ? data.author.split('@')[0] : 'Unknown'}</p>
-                        <p class="mt-4 text-sm text-slate-300 line-clamp-2">"${data.description || 'No description.'}"</p>
-                        ${btnSummary}
-                    </div>
-                    <button onclick="handleDownload('${data.id}')" class="btn-download mt-6 w-full py-3 rounded-xl font-bold text-white transition-transform active:scale-95 ${(!currentUser || !mcAccount) ? 'opacity-50 cursor-not-allowed' : ''}">${(currentUser && mcAccount) ? 'Download' : (currentUser ? 'Link Minecraft' : 'Login to Download')}</button>
-                `;
-                configList.appendChild(div);
-            });
-        }
+                        <button onclick="handleDownload('${data.id}')" class="btn-download mt-6 w-full py-3 rounded-xl font-bold text-white transition-transform active:scale-95 ${(!currentUser || !mcAccount) ? 'opacity-50 cursor-not-allowed' : ''}">${(currentUser && mcAccount) ? 'Download' : (currentUser ? 'Link Minecraft' : 'Login to Download')}</button>
+                    `;
+                    configList.appendChild(div);
+                });
+            }
 
-        window.handleDownload = async (id) => {
-            if (!currentUser) {
-                alert('Please login with Google to download configurations.');
-                signInWithRedirect(auth, provider);
-                return;
-            }
-            if (!mcAccount) {
-                alert('Your Google account is not linked with Minecraft. Please login using the F34 mod in Minecraft first.');
-                return;
-            }
-            try {
-                const docRef = doc(db, "shared_configs", id);
-                const snap = await getDoc(docRef);
-                if (!snap.exists()) return;
-                const data = snap.data();
-                const blob = new Blob([data.config_json], { type: 'application/json' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `${data.name.replaceAll(' ', '_')}.json`;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
-                await updateDoc(docRef, { downloads: increment(1) });
-            } catch (e) {
-                alert("Download failed.");
-            }
-        };
+            window.handleDownload = async (id) => {
+                if (!currentUser) {
+                    alert('Please login with Google to download configurations.');
+                    signInWithRedirect(auth, provider);
+                    return;
+                }
+                if (!mcAccount) {
+                    alert('Your Google account is not linked with Minecraft. Please login using the F34 mod in Minecraft first.');
+                    return;
+                }
+                try {
+                    const docRef = doc(db, "shared_configs", id);
+                    const snap = await getDoc(docRef);
+                    if (!snap.exists()) return;
+                    const data = snap.data();
+                    const blob = new Blob([data.config_json], { type: 'application/json' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `${data.name.replaceAll(' ', '_')}.json`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                    await updateDoc(docRef, { downloads: increment(1) });
+                } catch (e) {
+                    alert("Download failed.");
+                }
+            };
+        } catch (globalError) {
+            log("Global Init Error: " + globalError.message);
+        }
     </script>
 </body>
 
