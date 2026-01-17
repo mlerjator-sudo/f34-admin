@@ -88,6 +88,10 @@
                         class="px-3 py-1 rounded-lg text-xs font-bold transition-all">EN</button>
                     <button onclick="setLang('ko')" id="lang-ko"
                         class="px-3 py-1 rounded-lg text-xs font-bold transition-all">KO</button>
+                    <button onclick="setLang('jp')" id="lang-jp"
+                        class="px-3 py-1 rounded-lg text-xs font-bold transition-all">JP</button>
+                    <button onclick="setLang('cn')" id="lang-cn"
+                        class="px-3 py-1 rounded-lg text-xs font-bold transition-all">CN</button>
                 </div>
                 <a href="admin.html" id="t-admin-panel"
                     class="px-6 py-2 rounded-lg glass hover:bg-white/10 transition-colors text-sm">Admin Panel</a>
@@ -225,6 +229,70 @@
                 categories: {
                     Adventure: "모험", Horror: "공포", Decoration: "장식", Economy: "경제", Equipment: "장비", Food: "음식", "Game Mechanics": "게임 메커니즘", Library: "라이브러리", Magic: "마법", Management: "관리", Minigame: "미니게임", Mobs: "몹", Optimization: "최적화", Social: "소셜", Storage: "저장", Technology: "기술", Transportation: "이동수단", Utility: "유틸리티", "World Gen": "월드 생성", General: "일반", Convenience: "편의성"
                 }
+            },
+            jp: {
+                subtitle: "共有された設定を探索してダウンロードしましょう",
+                adminPanel: "管理者パネル",
+                login: "Googleでログイン",
+                logout: "ログアウト",
+                linkMod: "Minecraft連携 (モッドでログイン)",
+                loggedInAs: "ログイン中:",
+                all: "すべて",
+                loading: "設定を読み込み中...",
+                details: "詳細情報",
+                download: "ダウンロード",
+                link: "連携が必要",
+                loginToDownload: "ログイン",
+                noConfigs: "まだ登録された設定がありません。",
+                noResults: "このカテゴリーには結果がありません。",
+                modalTitle: "設定の詳細情報",
+                modalClose: "閉じる",
+                info: "情報",
+                author: "作成者",
+                category: "カテゴリー",
+                downloads: "ダウンロード数",
+                description: "説明",
+                buttons: "ボタンリスト",
+                raw: "元の設定データ",
+                noButtons: "定義されたボタンがありません。",
+                noDesc: "説明がありません。",
+                loginAlert: "Googleログインが必要です。",
+                linkAlert: "モッドで先にMinecraftアカウントを連携してください。",
+                categories: {
+                    Adventure: "アドベンチャー", Horror: "ホラー", Decoration: "装飾", Economy: "経済", Equipment: "装備", Food: "食べ物", "Game Mechanics": "ゲームメカニクス", Library: "ライブラリ", Magic: "魔法", Management: "管理", Minigame: "ミニゲーム", Mobs: "モブ", Optimization: "最適化", Social: "ソーシャル", Storage: "ストレージ", Technology: "技術", Transportation: "交通", Utility: "ユーティリティ", "World Gen": "ワールド生成", General: "一般", Convenience: "利便性"
+                }
+            },
+            cn: {
+                subtitle: "探索并下载共享配置",
+                adminPanel: "管理面板",
+                login: "使用 Google 登录",
+                logout: "退出登录",
+                linkMod: "关联 Minecraft (在模组中登录)",
+                loggedInAs: "已登录为:",
+                all: "全部",
+                loading: "正在加载配置...",
+                details: "详细信息",
+                download: "下载",
+                link: "需要关联",
+                loginToDownload: "登录",
+                noConfigs: "尚无已注册的配置。",
+                noResults: "此类别下没有结果。",
+                modalTitle: "配置详细信息",
+                modalClose: "关闭",
+                info: "信息",
+                author: "作者",
+                category: "类别",
+                downloads: "下载次数",
+                description: "描述",
+                buttons: "按钮列表",
+                raw: "原始配置数据",
+                noButtons: "未定义按钮。",
+                noDesc: "无描述。",
+                loginAlert: "请先使用 Google 登录。",
+                linkAlert: "请先在模组中关联 Minecraft 账号。",
+                categories: {
+                    Adventure: "冒险", Horror: "恐怖", Decoration: "装饰", Economy: "经济", Equipment: "装备", Food: "食物", "Game Mechanics": "游戏机制", Library: "库", Magic: "魔法", Management: "管理", Minigame: "小游戏", Mobs: "生物", Optimization: "优化", Social: "社交", Storage: "存储", Technology: "技术", Transportation: "交通", Utility: "工具", "World Gen": "世界生成", General: "常规", Convenience: "便捷"
+                }
             }
         };
 
@@ -256,10 +324,13 @@
                 }
             }
 
-            const langEnBtn = document.getElementById('lang-en');
-            const langKoBtn = document.getElementById('lang-ko');
-            if (langEnBtn) langEnBtn.className = `px-3 py-1 rounded-lg text-xs font-bold transition-all ${currentLang === 'en' ? 'bg-blue-500 text-white' : 'hover:bg-white/10'}`;
-            if (langKoBtn) langKoBtn.className = `px-3 py-1 rounded-lg text-xs font-bold transition-all ${currentLang === 'ko' ? 'bg-blue-500 text-white' : 'hover:bg-white/10'}`;
+            ['lang-en', 'lang-ko', 'lang-jp', 'lang-cn'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    const lang = id.split('-')[1];
+                    el.className = `px-3 py-1 rounded-lg text-xs font-bold transition-all ${currentLang === lang ? 'bg-blue-500 text-white' : 'hover:bg-white/10'}`;
+                }
+            });
 
             renderCategories();
             renderConfigs();
