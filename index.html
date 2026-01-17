@@ -150,7 +150,17 @@
             appId: "1:660590227115:web:0f1ca3aa9464f2406c11ee"
         };
 
-        // --- i18n ---
+        // --- Global State ---
+        let db, auth, provider;
+        let currentUser = null;
+        let mcAccount = null;
+        let currentCategory = 'all';
+        let allConfigs = [];
+        let dataLoaded = false;
+        let currentLang = localStorage.getItem('f34_lang') || 'en';
+
+        const CATEGORIES = ["Adventure", "Horror", "Decoration", "Economy", "Equipment", "Food", "Game Mechanics", "Library", "Magic", "Management", "Minigame", "Mobs", "Optimization", "Social", "Storage", "Technology", "Transportation", "Utility", "World Gen", "General", "Convenience"];
+
         const i18n = {
             en: {
                 subtitle: "Discover and download shared configurations",
@@ -218,8 +228,7 @@
             }
         };
 
-        let currentLang = localStorage.getItem('f34_lang') || 'en';
-
+        // --- UI Functions ---
         window.setLang = (lang) => {
             currentLang = lang;
             localStorage.setItem('f34_lang', lang);
@@ -238,7 +247,6 @@
             if (loadingEl) loadingEl.textContent = t.loading;
             if (modalCloseEl) modalCloseEl.textContent = t.modalClose;
 
-            // Update auth button text if not logged in
             const authBtn = document.getElementById('auth-btn');
             if (authBtn) {
                 if (!currentUser) {
@@ -248,101 +256,241 @@
                 }
             }
 
-            // Update language switcher styles
             const langEnBtn = document.getElementById('lang-en');
             const langKoBtn = document.getElementById('lang-ko');
             if (langEnBtn) langEnBtn.className = `px-3 py-1 rounded-lg text-xs font-bold transition-all ${currentLang === 'en' ? 'bg-blue-500 text-white' : 'hover:bg-white/10'}`;
             if (langKoBtn) langKoBtn.className = `px-3 py-1 rounded-lg text-xs font-bold transition-all ${currentLang === 'ko' ? 'bg-blue-500 text-white' : 'hover:bg-white/10'}`;
 
-            // Re-render dynamic elements
             renderCategories();
             renderConfigs();
         }
 
-        let db, auth, provider;
-        let currentUser = null;
-        let mcAccount = null;
-        let currentCategory = 'all';
-        let allConfigs = [];
-        let dataLoaded = false;
+        function renderCategories() {
+            const t = i18n[currentLang];
+            const filterContainer = document.getElementById('category-filter');
+            if (!filterContainer) return;
+            filterContainer.innerHTML = '';
 
+            const allBtn = document.createElement('button');
+            allBtn.className = `filter-btn px-4 py-2 rounded-lg glass text-[10px] font-bold uppercase tracking-wider transition-all ${currentCategory === 'all' ? 'active' : ''}`;
+            allBtn.textContent = t.all;
+            allBtn.dataset.category = 'all';
+            allBtn.onclick = () => window.setFilter('all');
+            filterContainer.appendChild(allBtn);
+
+            CATEGORIES.forEach(cat => {
+                const btn = document.createElement('button');
+                btn.className = `filter-btn px-4 py-2 rounded-lg glass text-[10px] font-bold uppercase tracking-wider transition-all ${currentCategory === cat ? 'active' : ''}`;
+                btn.textContent = t.categories[cat] || cat;
+                btn.dataset.category = cat;
+                btn.onclick = () => window.setFilter(cat);
+                filterContainer.appendChild(btn);
+            });
+        }
+
+        window.setFilter = (cat) => {
+            currentCategory = cat;
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.category === cat));
+            renderConfigs();
+        }
+
+        function renderConfigs() {
+            if (!dataLoaded) return;
+            const t = i18n[currentLang];
+            const configList = document.getElementById('config-list');
+            if (!configList) return;
+
+            const filtered = currentCategory === 'all' ? allConfigs : allConfigs.filter(c => c.category === currentCategory);
+            if (filtered.length === 0) {
+                configList.innerHTML = `<div class="col-span-full glass p-12 text-center text-xl">${allConfigs.length === 0 ? t.noConfigs : t.noResults}</div>`;
+                return;
+            }
+            configList.innerHTML = '';
+            filtered.forEach((data) => {
+                const div = document.createElement('div');
+                div.className = 'glass p-6 card-hover flex flex-col justify-between';
+                let btnSummary = '';
+                try {
+                    const config = JSON.parse(data.config_json);
+                    if (config.buttons) {
+                        btnSummary = `<div class="flex flex-wrap gap-2 mt-4">
+                            ${config.buttons.slice(0, 4).map(b => `<span class="icon-badge px-2 py-1 rounded text-[10px]">${b.name || 'Button'}</span>`).join('')}
+                        </div>`;
+                    }
+                } catch (e) { }
+                div.innerHTML = `
+                    <div>
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h3 class="text-xl font-bold">${data.name || 'Untitled'}</h3>
+                                <span class="text-[10px] text-blue-400 font-bold uppercase tracking-wider">${t.categories[data.category] || data.category || t.categories.General}</span>
+                            </div>
+                            <span class="text-[10px] opacity-40 font-mono">${data.downloads || 0} DLs</span>
+                        </div>
+                        <p class="text-slate-400 text-xs mt-1">by ${data.author ? data.author.split('@')[0] : 'Unknown'}</p>
+                        <p class="mt-4 text-sm text-slate-300 line-clamp-2">"${data.description || t.noDesc}"</p>
+                        ${btnSummary}
+                    </div>
+                    <div class="flex gap-3 mt-6">
+                        <button onclick="showDetails('${data.id}')" class="flex-1 py-3 rounded-xl glass font-bold hover:bg-white/10 transition-colors">${t.details}</button>
+                        <button onclick="handleDownload('${data.id}')" class="btn-download flex-1 py-3 rounded-xl font-bold text-white transition-transform active:scale-95 ${(!currentUser || !mcAccount) ? 'opacity-50 cursor-not-allowed' : ''}">${(currentUser && mcAccount) ? t.download : (currentUser ? t.link : t.loginToDownload)}</button>
+                    </div>
+                `;
+                configList.appendChild(div);
+            });
+        }
+
+        window.showDetails = (id) => {
+            const data = allConfigs.find(c => c.id === id);
+            if (!data) return;
+
+            const t = i18n[currentLang];
+            const modal = document.getElementById('details-modal');
+            const modalTitle = document.getElementById('modal-title');
+            const modalBody = document.getElementById('modal-body');
+            const modalDownloadBtn = document.getElementById('modal-download-btn');
+
+            modalTitle.textContent = t.modalTitle;
+
+            let configObj = {};
+            try { configObj = JSON.parse(data.config_json); } catch (e) { }
+
+            modalBody.innerHTML = `
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div>
+                        <h4 class="text-xs uppercase tracking-widest opacity-40 font-bold mb-4">${t.info}</h4>
+                        <div class="space-y-4">
+                            <div>
+                                <div class="text-[10px] opacity-40">${t.author}</div>
+                                <div class="font-semibold text-blue-400">${data.author || 'Unknown'}</div>
+                            </div>
+                            <div>
+                                <div class="text-[10px] opacity-40">${t.category}</div>
+                                <div class="font-semibold">${t.categories[data.category] || data.category || t.categories.General}</div>
+                            </div>
+                            <div>
+                                <div class="text-[10px] opacity-40">${t.downloads}</div>
+                                <div class="font-semibold">${data.downloads || 0}</div>
+                            </div>
+                        </div>
+                        
+                        <h4 class="text-xs uppercase tracking-widest opacity-40 font-bold mt-8 mb-4">${t.description}</h4>
+                        <p class="text-slate-300 leading-relaxed">"${data.description || t.noDesc}"</p>
+                    </div>
+                    
+                    <div>
+                        <h4 class="text-xs uppercase tracking-widest opacity-40 font-bold mb-4">${t.buttons} (${configObj.buttons ? configObj.buttons.length : 0})</h4>
+                        <div class="space-y-3">
+                            ${(configObj.buttons || []).map(btn => `
+                                <div class="glass p-3 rounded-xl border border-white/5">
+                                    <div class="flex items-center gap-2 mb-1">
+                                        <span class="text-sm font-bold">${btn.name || 'Unnamed Button'}</span>
+                                    </div>
+                                    <div class="text-[10px] font-mono opacity-50 break-all">${btn.command || 'No command'}</div>
+                                </div>
+                            `).join('')}
+                            ${(!configObj.buttons || configObj.buttons.length === 0) ? `<div class="opacity-30 italic text-sm">${t.noButtons}</div>` : ''}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-8">
+                    <details class="group">
+                        <summary class="text-xs uppercase tracking-widest opacity-40 font-bold cursor-pointer hover:opacity-100 transition-opacity flex items-center gap-2">
+                            ${t.raw}
+                            <svg class="w-3 h-3 group-open:rotate-180 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </summary>
+                        <pre class="mt-4 p-4 rounded-xl bg-black/40 text-[10px] font-mono overflow-x-auto border border-white/5 text-blue-300">${JSON.stringify(configObj, null, 2)}</pre>
+                    </details>
+                </div>
+            `;
+
+            modalDownloadBtn.textContent = t.download;
+            modalDownloadBtn.onclick = () => window.handleDownload(id);
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        };
+
+        window.closeModal = () => {
+            document.getElementById('details-modal').classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        };
+
+        document.getElementById('details-modal').onclick = (e) => {
+            if (e.target.id === 'details-modal') closeModal();
+        };
+
+        window.handleDownload = async (id) => {
+            const t = i18n[currentLang];
+            if (!currentUser) { alert(t.loginAlert); return; }
+            if (!mcAccount) { alert(t.linkAlert); return; }
+            try {
+                const docRef = doc(db, "shared_configs", id);
+                const snap = await getDoc(docRef);
+                if (!snap.exists()) return;
+                const data = snap.data();
+                const blob = new Blob([data.config_json], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `${data.name.replaceAll(' ', '_')}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                await updateDoc(docRef, { downloads: increment(1) });
+            } catch (e) { alert("Download failed."); }
+        };
+
+        // --- Firebase Logic ---
         try {
             const app = initializeApp(firebaseConfig);
             db = initializeFirestore(app, { experimentalForceLongPolling: true });
             auth = getAuth(app);
             provider = new GoogleAuthProvider();
 
-            const configList = document.getElementById('config-list');
-            const filterContainer = document.getElementById('category-filter');
-            const authBtn = document.getElementById('auth-btn');
-
             onAuthStateChanged(auth, async (user) => {
                 currentUser = user;
                 const t = i18n[currentLang];
+                const authBtn = document.getElementById('auth-btn');
                 if (user) {
                     try {
                         const userDoc = await getDoc(doc(db, "users", user.email));
                         if (userDoc.exists()) {
                             mcAccount = userDoc.data();
-                            authBtn.innerHTML = `<div class="flex items-center gap-3">
-                                <img src="https://mc-heads.net/avatar/${mcAccount.mc_name}/32" class="w-8 h-8 rounded border border-white/20" alt="Skin">
-                                <div class="text-left">
-                                    <div class="text-[10px] opacity-50 leading-none">${t.loggedInAs}</div>
-                                    <div class="font-bold">${mcAccount.mc_name}</div>
-                                </div>
-                            </div>`;
+                            if (authBtn) {
+                                authBtn.innerHTML = `<div class="flex items-center gap-3">
+                                    <img src="https://mc-heads.net/avatar/${mcAccount.mc_name}/32" class="w-8 h-8 rounded border border-white/20" alt="Skin">
+                                    <div class="text-left">
+                                        <div class="text-[10px] opacity-50 leading-none">${t.loggedInAs}</div>
+                                        <div class="font-bold">${mcAccount.mc_name}</div>
+                                    </div>
+                                </div>`;
+                            }
                         } else {
-                            authBtn.textContent = t.linkMod;
+                            if (authBtn) authBtn.textContent = t.linkMod;
                         }
                     } catch (e) { log("Auth Doc Error: " + e.message); }
                 } else {
-                    authBtn.textContent = t.login;
+                    if (authBtn) authBtn.textContent = t.login;
                 }
                 renderConfigs();
             });
 
-            authBtn.onclick = async () => {
-                if (currentUser) signOut(auth);
-                else {
-                    try {
-                        await signInWithPopup(auth, provider).catch(async (err) => {
-                            if (['auth/popup-blocked', 'auth/popup-closed-by-user', 'auth/cancelled-popup-request'].includes(err.code)) {
-                                await signInWithRedirect(auth, provider);
-                            } else throw err;
-                        });
-                    } catch (e) { alert("Login failed: " + e.message); }
-                }
-            };
-
-            const CATEGORIES = ["Adventure", "Horror", "Decoration", "Economy", "Equipment", "Food", "Game Mechanics", "Library", "Magic", "Management", "Minigame", "Mobs", "Optimization", "Social", "Storage", "Technology", "Transportation", "Utility", "World Gen", "General", "Convenience"];
-
-            function renderCategories() {
-                const t = i18n[currentLang];
-                if (!filterContainer) return;
-                filterContainer.innerHTML = '';
-
-                // Create "All" button
-                const allBtn = document.createElement('button');
-                allBtn.className = `filter-btn px-4 py-2 rounded-lg glass text-[10px] font-bold uppercase tracking-wider transition-all ${currentCategory === 'all' ? 'active' : ''}`;
-                allBtn.textContent = t.all;
-                allBtn.dataset.category = 'all';
-                allBtn.onclick = () => window.setFilter('all');
-                filterContainer.appendChild(allBtn);
-
-                CATEGORIES.forEach(cat => {
-                    const btn = document.createElement('button');
-                    btn.className = `filter-btn px-4 py-2 rounded-lg glass text-[10px] font-bold uppercase tracking-wider transition-all ${currentCategory === cat ? 'active' : ''}`;
-                    btn.textContent = t.categories[cat] || cat;
-                    btn.dataset.category = cat;
-                    btn.onclick = () => window.setFilter(cat);
-                    filterContainer.appendChild(btn);
-                });
-            }
-
-            window.setFilter = (cat) => {
-                currentCategory = cat;
-                document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.category === cat));
-                renderConfigs();
+            const authBtn = document.getElementById('auth-btn');
+            if (authBtn) {
+                authBtn.onclick = async () => {
+                    if (currentUser) signOut(auth);
+                    else {
+                        try {
+                            await signInWithPopup(auth, provider).catch(async (err) => {
+                                if (['auth/popup-blocked', 'auth/popup-closed-by-user', 'auth/cancelled-popup-request'].includes(err.code)) {
+                                    await signInWithRedirect(auth, provider);
+                                } else throw err;
+                            });
+                        } catch (e) { alert("Login failed: " + e.message); }
+                    }
+                };
             }
 
             const q = query(collection(db, "shared_configs"), where("status", "==", "approved"));
@@ -392,151 +540,6 @@
                     renderConfigs();
                 });
             }
-
-            function renderConfigs() {
-                if (!dataLoaded) return;
-                const t = i18n[currentLang];
-                const filtered = currentCategory === 'all' ? allConfigs : allConfigs.filter(c => c.category === currentCategory);
-                if (filtered.length === 0) {
-                    configList.innerHTML = `<div class="col-span-full glass p-12 text-center text-xl">${allConfigs.length === 0 ? t.noConfigs : t.noResults}</div>`;
-                    return;
-                }
-                configList.innerHTML = '';
-                filtered.forEach((data) => {
-                    const div = document.createElement('div');
-                    div.className = 'glass p-6 card-hover flex flex-col justify-between';
-                    let btnSummary = '';
-                    try {
-                        const config = JSON.parse(data.config_json);
-                        if (config.buttons) {
-                            btnSummary = `<div class="flex flex-wrap gap-2 mt-4">
-                                ${config.buttons.slice(0, 4).map(b => `<span class="icon-badge px-2 py-1 rounded text-[10px]">${b.name || 'Button'}</span>`).join('')}
-                            </div>`;
-                        }
-                    } catch (e) { }
-                    div.innerHTML = `
-                        <div>
-                            <div class="flex justify-between items-start">
-                                <div>
-                                    <h3 class="text-xl font-bold">${data.name || 'Untitled'}</h3>
-                                    <span class="text-[10px] text-blue-400 font-bold uppercase tracking-wider">${t.categories[data.category] || data.category || t.categories.General}</span>
-                                </div>
-                                <span class="text-[10px] opacity-40 font-mono">${data.downloads || 0} DLs</span>
-                            </div>
-                            <p class="text-slate-400 text-xs mt-1">by ${data.author ? data.author.split('@')[0] : 'Unknown'}</p>
-                            <p class="mt-4 text-sm text-slate-300 line-clamp-2">"${data.description || t.noDesc}"</p>
-                            ${btnSummary}
-                        </div>
-                        <div class="flex gap-3 mt-6">
-                            <button onclick="showDetails('${data.id}')" class="flex-1 py-3 rounded-xl glass font-bold hover:bg-white/10 transition-colors">${t.details}</button>
-                            <button onclick="handleDownload('${data.id}')" class="btn-download flex-1 py-3 rounded-xl font-bold text-white transition-transform active:scale-95 ${(!currentUser || !mcAccount) ? 'opacity-50 cursor-not-allowed' : ''}">${(currentUser && mcAccount) ? t.download : (currentUser ? t.link : t.loginToDownload)}</button>
-                        </div>
-                    `;
-                    configList.appendChild(div);
-                });
-            }
-
-            window.showDetails = (id) => {
-                const data = allConfigs.find(c => c.id === id);
-                if (!data) return;
-
-                const t = i18n[currentLang];
-                const modal = document.getElementById('details-modal');
-                const modalTitle = document.getElementById('modal-title');
-                const modalBody = document.getElementById('modal-body');
-                const modalDownloadBtn = document.getElementById('modal-download-btn');
-
-                modalTitle.textContent = t.modalTitle;
-
-                let configObj = {};
-                try { configObj = JSON.parse(data.config_json); } catch (e) { }
-
-                modalBody.innerHTML = `
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        <div>
-                            <h4 class="text-xs uppercase tracking-widest opacity-40 font-bold mb-4">${t.info}</h4>
-                            <div class="space-y-4">
-                                <div>
-                                    <div class="text-[10px] opacity-40">${t.author}</div>
-                                    <div class="font-semibold text-blue-400">${data.author || 'Unknown'}</div>
-                                </div>
-                                <div>
-                                    <div class="text-[10px] opacity-40">${t.category}</div>
-                                    <div class="font-semibold">${t.categories[data.category] || data.category || t.categories.General}</div>
-                                </div>
-                                <div>
-                                    <div class="text-[10px] opacity-40">${t.downloads}</div>
-                                    <div class="font-semibold">${data.downloads || 0}</div>
-                                </div>
-                            </div>
-                            
-                            <h4 class="text-xs uppercase tracking-widest opacity-40 font-bold mt-8 mb-4">${t.description}</h4>
-                            <p class="text-slate-300 leading-relaxed">"${data.description || t.noDesc}"</p>
-                        </div>
-                        
-                        <div>
-                            <h4 class="text-xs uppercase tracking-widest opacity-40 font-bold mb-4">${t.buttons} (${configObj.buttons ? configObj.buttons.length : 0})</h4>
-                            <div class="space-y-3">
-                                ${(configObj.buttons || []).map(btn => `
-                                    <div class="glass p-3 rounded-xl border border-white/5">
-                                        <div class="flex items-center gap-2 mb-1">
-                                            <span class="text-sm font-bold">${btn.name || 'Unnamed Button'}</span>
-                                        </div>
-                                        <div class="text-[10px] font-mono opacity-50 break-all">${btn.command || 'No command'}</div>
-                                    </div>
-                                `).join('')}
-                                ${(!configObj.buttons || configObj.buttons.length === 0) ? `<div class="opacity-30 italic text-sm">${t.noButtons}</div>` : ''}
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="mt-8">
-                        <details class="group">
-                            <summary class="text-xs uppercase tracking-widest opacity-40 font-bold cursor-pointer hover:opacity-100 transition-opacity flex items-center gap-2">
-                                ${t.raw}
-                                <svg class="w-3 h-3 group-open:rotate-180 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                            </summary>
-                            <pre class="mt-4 p-4 rounded-xl bg-black/40 text-[10px] font-mono overflow-x-auto border border-white/5 text-blue-300">${JSON.stringify(configObj, null, 2)}</pre>
-                        </details>
-                    </div>
-                `;
-
-                modalDownloadBtn.textContent = t.download;
-                modalDownloadBtn.onclick = () => handleDownload(id);
-                modal.classList.remove('hidden');
-                document.body.style.overflow = 'hidden';
-            };
-
-            window.closeModal = () => {
-                document.getElementById('details-modal').classList.add('hidden');
-                document.body.style.overflow = 'auto';
-            };
-
-            document.getElementById('details-modal').onclick = (e) => {
-                if (e.target.id === 'details-modal') closeModal();
-            };
-
-            window.handleDownload = async (id) => {
-                const t = i18n[currentLang];
-                if (!currentUser) { alert(t.loginAlert); return; }
-                if (!mcAccount) { alert(t.linkAlert); return; }
-                try {
-                    const docRef = doc(db, "shared_configs", id);
-                    const snap = await getDoc(docRef);
-                    if (!snap.exists()) return;
-                    const data = snap.data();
-                    const blob = new Blob([data.config_json], { type: 'application/json' });
-                    const url = URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = `${data.name.replaceAll(' ', '_')}.json`;
-                    document.body.appendChild(a);
-                    a.click();
-                    document.body.removeChild(a);
-                    URL.revokeObjectURL(url);
-                    await updateDoc(docRef, { downloads: increment(1) });
-                } catch (e) { alert("Download failed."); }
-            };
 
             // Initial UI update
             updateUI();
