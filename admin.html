@@ -152,478 +152,312 @@
             </div>
         </div>
     </div>
-    noConfigs: "No pending configurations.",
-    approve: "Approve",
-    reject: "Reject",
-    playersTitle: "Player Management",
-    supportTitle: "Support Tickets",
-    noTickets: "No support tickets found.",
-    ticketTitle: "Support Ticket",
-    ticketUser: "From",
-    ticketDate: "Date",
-    ticketDelete: "Delete Ticket",
-    playerBan: "Ban Player",
-    playerUnban: "Unban Player",
-    playerWarn: "Warn",
-    playerDelete: "Delete Account",
-    playerConfigs: "Deployed Configurations",
-    banHours: "Hours",
-    banStatus: "Banned until",
-    activeStatus: "Active",
-    categories: { General: "General" }
-    },
-    ko: {
-    pendingTitle: "승인 대기 중인 설정",
-    noConfigs: "대기 중인 설정이 없습니다.",
-    approve: "승인",
-    reject: "거절",
-    playersTitle: "플레이어 관리",
-    supportTitle: "고객 센터 문의",
-    noTickets: "접수된 문의가 없습니다.",
-    ticketTitle: "고객 문의",
-    ticketUser: "작성자",
-    ticketDate: "날짜",
-    ticketDelete: "문의 삭제",
-    playerBan: "플레이어 차단",
-    playerUnban: "차단 해제",
-    playerWarn: "경고",
-    playerDelete: "계정 삭제",
-    playerConfigs: "배포한 설정 목록",
-    banHours: "시간",
-    banStatus: "차단 만료:",
-    activeStatus: "정상",
-    categories: { General: "일반" }
-    }
-    };
 
-    let currentLang = localStorage.getItem('f34_lang') || 'en';
-    let db, auth, provider;
-    let currentUser = null;
-    let mcAccount = null;
-    let allConfigs = [];
-    let allPlayers = [];
-    let allTickets = [];
-    let dataLoaded = false;
-    let currentTab = 'configs';
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { initializeFirestore, collection, query, where, onSnapshot, doc, getDoc, getDocs, updateDoc, deleteDoc, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getAuth, signInWithPopup, signInWithRedirect, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-    function log(msg) { console.log(`[F34 Admin] ${msg}`); }
-
-    window.setLang = (lang) => {
-    currentLang = lang;
-    localStorage.setItem('f34_lang', lang);
-    updateUI();
-    };
-
-    window.switchTab = (tab) => {
-    currentTab = tab;
-    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-    document.getElementById(`tab-${tab}`).classList.add('active');
-
-    document.getElementById('section-configs').classList.add('hidden');
-    document.getElementById('section-players').classList.add('hidden');
-    document.getElementById('section-support').classList.add('hidden');
-    document.getElementById(`section-${tab}`).classList.remove('hidden');
-
-    if (tab === 'players') fetchPlayers();
-    if (tab === 'support') fetchTickets();
-    };
-
-    function updateUI() {
-    const t = i18n[currentLang] || i18n.en;
-    document.getElementById('t-pending-title').textContent = t.pendingTitle;
-    document.getElementById('t-players-title').textContent = t.playersTitle;
-    document.getElementById('t-support-title').textContent = t.supportTitle;
-
-    document.querySelectorAll('[id^="lang-"]').forEach(btn => {
-    btn.classList.remove('bg-white/10', 'text-blue-400');
-    if (btn.id === `lang-${currentLang}`) btn.classList.add('bg-white/10', 'text-blue-400');
-    });
-
-    renderConfigs();
-    renderPlayers();
-    renderTickets();
-    }
-
-    function renderConfigs() {
-    if (!dataLoaded) return;
-    const t = i18n[currentLang] || i18n.en;
-    const configList = document.getElementById('config-list');
-    if (!configList) return;
-
-    if (allConfigs.length === 0) {
-    configList.innerHTML = `<div class="col-span-full glass p-12 text-center text-xl">${t.noConfigs}</div>`;
-    return;
-    }
-
-    configList.innerHTML = '';
-    allConfigs.forEach(data => {
-    const div = document.createElement('div');
-    div.className = "glass p-6 card-hover flex flex-col justify-between";
-    div.innerHTML = `
-    <div>
-        <div class="flex justify-between items-start mb-4">
-            <div>
-                <h3 class="text-xl font-bold">${data.name || 'Untitled'}</h3>
-                <span class="text-[10px] text-blue-400 font-bold uppercase tracking-wider">${data.category}</span>
-            </div>
-        </div>
-        <p class="text-slate-400 text-xs">by ${data.author}</p>
-        <p class="mt-4 text-sm text-slate-300 line-clamp-3">"${data.description || 'No description'}"</p>
-    </div>
-    <div class="flex gap-3 mt-8">
-        <button onclick="updateStatus('${data.id}', 'approved')"
-            class="flex-1 py-3 rounded-xl bg-blue-600 font-bold hover:bg-blue-500 transition-colors">${t.approve}</button>
-        <button onclick="updateStatus('${data.id}', 'rejected')"
-            class="flex-1 py-3 rounded-xl glass font-bold hover:bg-red-500/20 text-red-400 transition-colors">${t.reject}</button>
-    </div>
-    `;
-    configList.appendChild(div);
-    });
-    }
-
-    // --- Player Management Functions ---
-    async function fetchPlayers() {
-    try {
-    const snap = await getDocs(collection(db, "users"));
-    allPlayers = [];
-    snap.forEach(doc => allPlayers.push({ email: doc.id, ...doc.data() }));
-    renderPlayers();
-    } catch (e) { log("Fetch Players Error: " + e.message); }
-    }
-
-    function renderPlayers() {
-    const t = i18n[currentLang] || i18n.en;
-    const playerList = document.getElementById('player-list');
-    if (!playerList) return;
-    playerList.innerHTML = '';
-    allPlayers.forEach(player => {
-    const isBanned = player.ban_until && player.ban_until > Date.now();
-    const tr = document.createElement('tr');
-    tr.className = "border-b border-white/5 hover:bg-white/5 transition-colors cursor-pointer";
-    tr.onclick = () => showPlayerDetails(player.email);
-    tr.innerHTML = `
-    <td class="px-6 py-4">
-        <div class="flex items-center gap-3">
-            <img src="https://mc-heads.net/avatar/${player.mc_name}/32" class="w-8 h-8 rounded border border-white/10">
-            <span class="font-bold">${player.mc_name}</span>
-        </div>
-    </td>
-    <td class="px-6 py-4 text-slate-400 text-sm">${player.email}</td>
-    <td class="px-6 py-4"><span
-            class="px-2 py-1 rounded bg-yellow-500/10 text-yellow-500 text-xs font-bold">${player.warnings || 0}</span>
-    </td>
-    <td class="px-6 py-4">
-        <span
-            class="px-2 py-1 rounded text-xs font-bold ${isBanned ? 'bg-red-500/10 text-red-500' : 'bg-green-500/10 text-green-500'}">
-            ${isBanned ? t.banStatus + ' ' + new Date(player.ban_until).toLocaleDateString() : t.activeStatus}
-        </span>
-    </td>
-    <td class="px-6 py-4 text-right">
-        <button class="text-blue-400 font-bold text-xs hover:underline">Manage</button>
-    </td>
-    `;
-    playerList.appendChild(tr);
-    });
-    }
-
-    window.showPlayerDetails = async (email) => {
-    const player = allPlayers.find(p => p.email === email);
-    if (!player) return;
-    const t = i18n[currentLang] || i18n.en;
-    const modal = document.getElementById('player-modal');
-    const content = document.getElementById('player-modal-content');
-    const isBanned = player.ban_until && player.ban_until > Date.now();
-
-    content.innerHTML = `
-    <div class="flex justify-between items-start mb-12">
-        <div class="flex items-center gap-6">
-            <img src="https://mc-heads.net/avatar/${player.mc_name}/64"
-                class="w-16 h-16 rounded-2xl border border-white/10">
-            <div>
-                <h2 class="text-3xl font-black tracking-tighter">${player.mc_name}</h2>
-                <p class="text-slate-500">${player.email}</p>
-            </div>
-        </div>
-        <button onclick="closePlayerModal()" class="text-slate-400 hover:text-white transition-colors">
-            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-            </svg>
-        </button>
-    </div>
-
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
-        <div class="glass p-6">
-            <h4 class="text-[10px] uppercase tracking-widest text-slate-500 font-bold mb-4">${t.playerBan}</h4>
-            <div class="flex gap-2">
-                <input type="number" id="ban-hours" placeholder="${t.banHours}"
-                    class="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-blue-500">
-                <button onclick="banPlayer('${player.email}')"
-                    class="px-4 py-2 bg-red-600 rounded-xl font-bold text-sm hover:bg-red-500 transition-colors">Ban</button>
-            </div>
-            ${isBanned ? `<button onclick="unbanPlayer('${player.email}')"
-                class="w-full mt-2 py-2 glass text-blue-400 font-bold text-sm hover:bg-white/5 transition-colors">${t.playerUnban}</button>`
-            : ''}
-        </div>
-        <div class="glass p-6">
-            <h4 class="text-[10px] uppercase tracking-widest text-slate-500 font-bold mb-4">${t.playerWarn}</h4>
-            <button onclick="warnPlayer('${player.email}')"
-                class="w-full py-2 bg-yellow-600 rounded-xl font-bold text-sm hover:bg-yellow-500 transition-colors">${t.playerWarn}
-                (+1)</button>
-            <p class="text-center mt-2 text-xs text-slate-500">Current Warnings: ${player.warnings || 0}</p>
-        </div>
-        <div class="glass p-6">
-            <h4 class="text-[10px] uppercase tracking-widest text-slate-500 font-bold mb-4">${t.playerDelete}</h4>
-            <button onclick="deletePlayer('${player.email}')"
-                class="w-full py-2 border border-red-500/20 text-red-500 rounded-xl font-bold text-sm hover:bg-red-500/10 transition-colors">${t.playerDelete}</button>
-        </div>
-    </div>
-
-    <div>
-        <h3 class="text-xl font-bold mb-6">${t.playerConfigs}</h3>
-        <div id="player-configs-list" class="space-y-4">
-            <div class="animate-pulse text-slate-500">Loading configurations...</div>
-        </div>
-    </div>
-    `;
-
-    // Fetch player's configs
-    const configsList = document.getElementById('player-configs-list');
-    try {
-    const q = query(collection(db, "shared_configs"), where("author", "==", player.email));
-    const snap = await getDocs(q);
-    if (snap.empty) {
-    configsList.innerHTML = '<div class="text-slate-500 italic">No configurations deployed.</div>';
-    } else {
-    configsList.innerHTML = '';
-    snap.forEach(doc => {
-    const data = doc.data();
-    const div = document.createElement('div');
-    div.className = "glass p-4 flex justify-between items-center border border-white/5";
-    div.innerHTML = `
-    <div>
-        <div class="font-bold">${data.name || 'Untitled'}</div>
-        <div class="text-xs text-slate-400">${data.category} • ${data.status}</div>
-    </div>
-    <button onclick="deleteConfig('${doc.id}', '${player.email}')"
-        class="p-2 text-red-400 hover:bg-red-400/10 rounded-lg transition-colors">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
-            </path>
-        </svg>
-    </button>
-    `;
-    configsList.appendChild(div);
-    });
-    }
-    } catch (e) { configsList.innerHTML = '<div class="text-red-400">Error loading configs.</div>'; }
-
-    modal.classList.remove('hidden');
-    document.body.style.overflow = 'hidden';
-    };
-
-    window.closePlayerModal = () => {
-    document.getElementById('player-modal').classList.add('hidden');
-    document.body.style.overflow = 'auto';
-    };
-
-    window.banPlayer = async (email) => {
-    const hours = parseInt(document.getElementById('ban-hours').value);
-    if (isNaN(hours) || hours <= 0) return alert("Enter valid hours."); try { const banUntil=Date.now() + (hours * 60 *
-        60 * 1000); await updateDoc(doc(db, "users" , email), { ban_until: banUntil }); alert("Player banned.");
-        fetchPlayers(); showPlayerDetails(email); } catch (e) { alert("Failed to ban player."); } };
-        window.unbanPlayer=async (email)=> {
-        try {
-        await updateDoc(doc(db, "users", email), { ban_until: null });
-        alert("Player unbanned.");
-        fetchPlayers();
-        showPlayerDetails(email);
-        } catch (e) { alert("Failed to unban player."); }
+        const firebaseConfig = {
+            apiKey: "AIzaSyA827pUzqfTpGpGbT9uKXKEjZo3hYl5ENo",
+            authDomain: "f34-di.firebaseapp.com",
+            projectId: "f34-di",
+            storageBucket: "f34-di.firebasestorage.app",
+            messagingSenderId: "660590227115",
+            appId: "1:660590227115:web:0f1ca3aa9464f2406c11ee"
         };
 
-        window.warnPlayer = async (email) => {
-        try {
-        const playerRef = doc(db, "users", email);
-        const snap = await getDoc(playerRef);
-        const warnings = (snap.data().warnings || 0) + 1;
-        await updateDoc(playerRef, { warnings: warnings });
-        alert(`Warning issued. Total: ${warnings}`);
-        fetchPlayers();
-        showPlayerDetails(email);
-        } catch (e) { alert("Failed to warn player."); }
+        const ADMIN_UID = "3HhMIE2eDTcev32kChg08g1GjNO2";
+        const i18n = {
+            en: {
+                pendingTitle: "Pending Approvals",
+                noConfigs: "No pending configurations.",
+                approve: "Approve",
+                reject: "Reject",
+                playersTitle: "Player Management",
+                supportTitle: "Support Tickets",
+                noTickets: "No support tickets found.",
+                ticketTitle: "Support Ticket",
+                ticketUser: "From",
+                ticketDate: "Date",
+                ticketDelete: "Delete Ticket",
+                playerBan: "Ban Player",
+                playerUnban: "Unban Player",
+                playerWarn: "Warn",
+                playerDelete: "Delete Account",
+                playerConfigs: "Deployed Configurations",
+                banHours: "Hours",
+                banStatus: "Banned until",
+                activeStatus: "Active",
+                categories: { General: "General" }
+            },
+            ko: {
+                pendingTitle: "승인 대기 중인 설정",
+                noConfigs: "대기 중인 설정이 없습니다.",
+                approve: "승인",
+                reject: "거절",
+                playersTitle: "플레이어 관리",
+                supportTitle: "고객 센터 문의",
+                noTickets: "접수된 문의가 없습니다.",
+                ticketTitle: "고객 문의",
+                ticketUser: "작성자",
+                ticketDate: "날짜",
+                ticketDelete: "문의 삭제",
+                playerBan: "플레이어 차단",
+                playerUnban: "차단 해제",
+                playerWarn: "경고",
+                playerDelete: "계정 삭제",
+                playerConfigs: "배포한 설정 목록",
+                banHours: "시간",
+                banStatus: "차단 만료:",
+                activeStatus: "정상",
+                categories: { General: "일반" }
+            }
         };
 
-        window.deletePlayer = async (email) => {
-        if (!confirm("Are you sure you want to delete this account? This cannot be undone.")) return;
-        try {
-        await deleteDoc(doc(db, "users", email));
-        alert("Account deleted.");
-        closePlayerModal();
-        fetchPlayers();
-        } catch (e) { alert("Failed to delete account."); }
+        let currentLang = localStorage.getItem('f34_lang') || 'en';
+        let db, auth, provider;
+        let currentUser = null;
+        let mcAccount = null;
+        let allConfigs = [];
+        let allPlayers = [];
+        let allTickets = [];
+        let dataLoaded = false;
+        let currentTab = 'configs';
+        let fetchTimeout = null;
+
+        function log(msg) { console.log(`[F34 Admin] ${msg}`); }
+
+        window.setLang = (lang) => {
+            currentLang = lang;
+            localStorage.setItem('f34_lang', lang);
+            updateUI();
         };
 
-        window.deleteConfig = async (id, email) => {
-        if (!confirm("Delete this configuration?")) return;
-        try {
-        await deleteDoc(doc(db, "shared_configs", id));
-        alert("Configuration deleted.");
-        showPlayerDetails(email);
-        } catch (e) { alert("Failed to delete configuration."); }
+        window.switchTab = (tab) => {
+            currentTab = tab;
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`tab-${tab}`).classList.add('active');
+            document.getElementById('section-configs').classList.add('hidden');
+            document.getElementById('section-players').classList.add('hidden');
+            document.getElementById('section-support').classList.add('hidden');
+            document.getElementById(`section-${tab}`).classList.remove('hidden');
+            if (tab === 'players') fetchPlayers();
+            if (tab === 'support') fetchTickets();
         };
 
-        // --- Support Center Functions ---
+        function updateUI() {
+            const t = i18n[currentLang] || i18n.en;
+            document.getElementById('t-pending-title').textContent = t.pendingTitle;
+            document.getElementById('t-players-title').textContent = t.playersTitle;
+            document.getElementById('t-support-title').textContent = t.supportTitle;
+            document.querySelectorAll('[id^="lang-"]').forEach(btn => {
+                btn.classList.remove('bg-white/10', 'text-blue-400');
+                if (btn.id === `lang-${currentLang}`) btn.classList.add('bg-white/10', 'text-blue-400');
+            });
+            renderConfigs();
+            renderPlayers();
+            renderTickets();
+        }
+
+        function renderConfigs() {
+            if (!dataLoaded) return;
+            const t = i18n[currentLang] || i18n.en;
+            const configList = document.getElementById('config-list');
+            if (!configList) return;
+            if (allConfigs.length === 0) {
+                configList.innerHTML = `<div class="col-span-full glass p-12 text-center text-xl">${t.noConfigs}</div>`;
+                return;
+            }
+            configList.innerHTML = '';
+            allConfigs.forEach(data => {
+                const div = document.createElement('div');
+                div.className = "glass p-6 card-hover flex flex-col justify-between";
+                div.innerHTML = `
+                    <div>
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <h3 class="text-xl font-bold">${data.name || 'Untitled'}</h3>
+                                <span class="text-[10px] text-blue-400 font-bold uppercase tracking-wider">${data.category}</span>
+                            </div>
+                        </div>
+                        <p class="text-slate-400 text-xs">by ${data.author}</p>
+                        <p class="mt-4 text-sm text-slate-300 line-clamp-3">"${data.description || 'No description'}"</p>
+                    </div>
+                    <div class="flex gap-3 mt-8">
+                        <button onclick="updateStatus('${data.id}', 'approved')" class="flex-1 py-3 rounded-xl bg-blue-600 font-bold hover:bg-blue-500 transition-colors">${t.approve}</button>
+                        <button onclick="updateStatus('${data.id}', 'rejected')" class="flex-1 py-3 rounded-xl glass font-bold hover:bg-red-500/20 text-red-400 transition-colors">${t.reject}</button>
+                    </div>
+                `;
+                configList.appendChild(div);
+            });
+        }
+
+        async function fetchConfigsREST() {
+            log("Attempting REST API fallback...");
+            try {
+                const url = `https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents/shared_configs`;
+                const response = await fetch(url);
+                const data = await response.json();
+                if (data.documents) {
+                    allConfigs = data.documents
+                        .map(doc => {
+                            const fields = doc.fields;
+                            const id = doc.name.split('/').pop();
+                            return {
+                                id: id,
+                                name: fields.name?.stringValue,
+                                author: fields.author?.stringValue,
+                                category: fields.category?.stringValue,
+                                description: fields.description?.stringValue,
+                                status: fields.status?.stringValue
+                            };
+                        })
+                        .filter(c => c.status === 'pending');
+                    dataLoaded = true;
+                    renderConfigs();
+                }
+            } catch (e) { log("REST Fallback Error: " + e.message); }
+        }
+
+        async function fetchPlayers() {
+            try {
+                const snap = await getDocs(collection(db, "users"));
+                allPlayers = [];
+                snap.forEach(doc => allPlayers.push({ email: doc.id, ...doc.data() }));
+                renderPlayers();
+            } catch (e) { log("Fetch Players Error: " + e.message); }
+        }
+
+        function renderPlayers() {
+            const t = i18n[currentLang] || i18n.en;
+            const playerList = document.getElementById('player-list');
+            if (!playerList) return;
+            playerList.innerHTML = '';
+            allPlayers.forEach(player => {
+                const isBanned = player.ban_until && player.ban_until > Date.now();
+                const tr = document.createElement('tr');
+                tr.className = "border-b border-white/5 hover:bg-white/5 transition-colors cursor-pointer";
+                tr.onclick = () => showPlayerDetails(player.email);
+                tr.innerHTML = `
+                    <td class="px-6 py-4"><div class="flex items-center gap-3"><img src="https://mc-heads.net/avatar/${player.mc_name}/32" class="w-8 h-8 rounded border border-white/10"><span class="font-bold">${player.mc_name}</span></div></td>
+                    <td class="px-6 py-4 text-slate-400 text-sm">${player.email}</td>
+                    <td class="px-6 py-4"><span class="px-2 py-1 rounded bg-yellow-500/10 text-yellow-500 text-xs font-bold">${player.warnings || 0}</span></td>
+                    <td class="px-6 py-4"><span class="px-2 py-1 rounded text-xs font-bold ${isBanned ? 'bg-red-500/10 text-red-500' : 'bg-green-500/10 text-green-500'}">${isBanned ? t.banStatus + ' ' + new Date(player.ban_until).toLocaleDateString() : t.activeStatus}</span></td>
+                    <td class="px-6 py-4 text-right"><button class="text-blue-400 font-bold text-xs hover:underline">Manage</button></td>
+                `;
+                playerList.appendChild(tr);
+            });
+        }
+
+        window.showPlayerDetails = async (email) => {
+            const player = allPlayers.find(p => p.email === email);
+            if (!player) return;
+            const t = i18n[currentLang] || i18n.en;
+            const modal = document.getElementById('player-modal');
+            const content = document.getElementById('player-modal-content');
+            const isBanned = player.ban_until && player.ban_until > Date.now();
+            content.innerHTML = `
+                <div class="flex justify-between items-start mb-12">
+                    <div class="flex items-center gap-6"><img src="https://mc-heads.net/avatar/${player.mc_name}/64" class="w-16 h-16 rounded-2xl border border-white/10"><div><h2 class="text-3xl font-black tracking-tighter">${player.mc_name}</h2><p class="text-slate-500">${player.email}</p></div></div>
+                    <button onclick="closePlayerModal()" class="text-slate-400 hover:text-white transition-colors"><svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+                    <div class="glass p-6"><h4 class="text-[10px] uppercase tracking-widest text-slate-500 font-bold mb-4">${t.playerBan}</h4><div class="flex gap-2"><input type="number" id="ban-hours" placeholder="${t.banHours}" class="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-blue-500"><button onclick="banPlayer('${player.email}')" class="px-4 py-2 bg-red-600 rounded-xl font-bold text-sm hover:bg-red-500 transition-colors">Ban</button></div>${isBanned ? `<button onclick="unbanPlayer('${player.email}')" class="w-full mt-2 py-2 glass text-blue-400 font-bold text-sm hover:bg-white/5 transition-colors">${t.playerUnban}</button>` : ''}</div>
+                    <div class="glass p-6"><h4 class="text-[10px] uppercase tracking-widest text-slate-500 font-bold mb-4">${t.playerWarn}</h4><button onclick="warnPlayer('${player.email}')" class="w-full py-2 bg-yellow-600 rounded-xl font-bold text-sm hover:bg-yellow-500 transition-colors">${t.playerWarn} (+1)</button><p class="text-center mt-2 text-xs text-slate-500">Current Warnings: ${player.warnings || 0}</p></div>
+                    <div class="glass p-6"><h4 class="text-[10px] uppercase tracking-widest text-slate-500 font-bold mb-4">${t.playerDelete}</h4><button onclick="deletePlayer('${player.email}')" class="w-full py-2 border border-red-500/20 text-red-500 rounded-xl font-bold text-sm hover:bg-red-500/10 transition-colors">${t.playerDelete}</button></div>
+                </div>
+                <div><h3 class="text-xl font-bold mb-6">${t.playerConfigs}</h3><div id="player-configs-list" class="space-y-4"><div class="animate-pulse text-slate-500">Loading configurations...</div></div></div>
+            `;
+            const configsList = document.getElementById('player-configs-list');
+            try {
+                const q = query(collection(db, "shared_configs"), where("author", "==", player.email));
+                const snap = await getDocs(q);
+                if (snap.empty) configsList.innerHTML = '<div class="text-slate-500 italic">No configurations deployed.</div>';
+                else {
+                    configsList.innerHTML = '';
+                    snap.forEach(doc => {
+                        const data = doc.data();
+                        const div = document.createElement('div');
+                        div.className = "glass p-4 flex justify-between items-center border border-white/5";
+                        div.innerHTML = `<div><div class="font-bold">${data.name || 'Untitled'}</div><div class="text-xs text-slate-400">${data.category} • ${data.status}</div></div><button onclick="deleteConfig('${doc.id}', '${player.email}')" class="p-2 text-red-400 hover:bg-red-400/10 rounded-lg transition-colors"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>`;
+                        configsList.appendChild(div);
+                    });
+                }
+            } catch (e) { configsList.innerHTML = '<div class="text-red-400">Error loading configs.</div>'; }
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        };
+
+        window.closePlayerModal = () => { document.getElementById('player-modal').classList.add('hidden'); document.body.style.overflow = 'auto'; };
+        window.banPlayer = async (email) => { const hours = parseInt(document.getElementById('ban-hours').value); if (isNaN(hours) || hours <= 0) return alert("Enter valid hours."); try { const banUntil = Date.now() + (hours * 60 * 60 * 1000); await updateDoc(doc(db, "users", email), { ban_until: banUntil }); alert("Player banned."); fetchPlayers(); showPlayerDetails(email); } catch (e) { alert("Failed to ban player."); } };
+        window.unbanPlayer = async (email) => { try { await updateDoc(doc(db, "users", email), { ban_until: null }); alert("Player unbanned."); fetchPlayers(); showPlayerDetails(email); } catch (e) { alert("Failed to unban player."); } };
+        window.warnPlayer = async (email) => { try { const playerRef = doc(db, "users", email); const snap = await getDoc(playerRef); const warnings = (snap.data().warnings || 0) + 1; await updateDoc(playerRef, { warnings: warnings }); alert(`Warning issued. Total: ${warnings}`); fetchPlayers(); showPlayerDetails(email); } catch (e) { alert("Failed to warn player."); } };
+        window.deletePlayer = async (email) => { if (!confirm("Are you sure?")) return; try { await deleteDoc(doc(db, "users", email)); alert("Deleted."); closePlayerModal(); fetchPlayers(); } catch (e) { alert("Failed."); } };
+        window.deleteConfig = async (id, email) => { if (!confirm("Delete this config?")) return; try { await deleteDoc(doc(db, "shared_configs", id)); alert("Deleted."); showPlayerDetails(email); } catch (e) { alert("Failed."); } };
+
         async function fetchTickets() {
-        try {
-        const q = query(collection(db, "support_tickets"), orderBy("timestamp", "desc"));
-        const snap = await getDocs(q);
-        allTickets = [];
-        snap.forEach(doc => allTickets.push({ id: doc.id, ...doc.data() }));
-        renderTickets();
-        } catch (e) { log("Fetch Tickets Error: " + e.message); }
+            try {
+                const q = query(collection(db, "support_tickets"), orderBy("timestamp", "desc"));
+                const snap = await getDocs(q);
+                allTickets = [];
+                snap.forEach(doc => allTickets.push({ id: doc.id, ...doc.data() }));
+                renderTickets();
+            } catch (e) { log("Fetch Tickets Error: " + e.message); }
         }
 
         function renderTickets() {
-        const t = i18n[currentLang] || i18n.en;
-        const supportList = document.getElementById('support-list');
-        if (!supportList) return;
-
-        if (allTickets.length === 0) {
-        supportList.innerHTML = `<div class="glass p-12 text-center text-xl">${t.noTickets}</div>`;
-        return;
+            const t = i18n[currentLang] || i18n.en;
+            const supportList = document.getElementById('support-list');
+            if (!supportList) return;
+            if (allTickets.length === 0) { supportList.innerHTML = `<div class="glass p-12 text-center text-xl">${t.noTickets}</div>`; return; }
+            supportList.innerHTML = '';
+            allTickets.forEach(ticket => {
+                const date = new Date(ticket.timestamp).toLocaleString();
+                const div = document.createElement('div');
+                div.className = "glass p-6 card-hover";
+                div.innerHTML = `<div class="flex justify-between items-start mb-4"><div><h3 class="text-xl font-bold">${t.ticketTitle}</h3><p class="text-slate-400 text-sm">${t.ticketUser}: ${ticket.email} (${ticket.mc_name || 'Unknown'})</p><p class="text-slate-500 text-xs">${t.ticketDate}: ${date}</p></div><button onclick="deleteTicket('${ticket.id}')" class="p-2 text-red-400 hover:bg-red-400/10 rounded-lg transition-colors"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button></div><div class="bg-white/5 p-4 rounded-xl border border-white/5 text-slate-300 whitespace-pre-wrap">${ticket.message}</div>`;
+                supportList.appendChild(div);
+            });
         }
 
-        supportList.innerHTML = '';
-        allTickets.forEach(ticket => {
-        const date = new Date(ticket.timestamp).toLocaleString();
-        const div = document.createElement('div');
-        div.className = "glass p-6 card-hover";
-        div.innerHTML = `
-        <div class="flex justify-between items-start mb-4">
-            <div>
-                <h3 class="text-xl font-bold">${t.ticketTitle}</h3>
-                <p class="text-slate-400 text-sm">${t.ticketUser}: ${ticket.email} (${ticket.mc_name || 'Unknown'})</p>
-                <p class="text-slate-500 text-xs">${t.ticketDate}: ${date}</p>
-            </div>
-            <button onclick="deleteTicket('${ticket.id}')"
-                class="p-2 text-red-400 hover:bg-red-400/10 rounded-lg transition-colors" title="${t.ticketDelete}">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
-                    </path>
-                </svg>
-            </button>
-        </div>
-        <div class="bg-white/5 p-4 rounded-xl border border-white/5 text-slate-300 whitespace-pre-wrap">
-            ${ticket.message}</div>
-        `;
-        supportList.appendChild(div);
-        });
-        }
+        window.deleteTicket = async (id) => { if (!confirm("Delete ticket?")) return; try { await deleteDoc(doc(db, "support_tickets", id)); alert("Deleted."); fetchTickets(); } catch (e) { alert("Failed."); } };
+        window.updateStatus = async (id, status) => { try { const docRef = doc(db, "shared_configs", id); if (status === 'approved') await updateDoc(docRef, { status: 'approved' }); else await deleteDoc(docRef); setupDataFetching(); } catch (e) { alert("Failed."); } };
 
-        window.deleteTicket = async (id) => {
-        if (!confirm("Delete this ticket?")) return;
         try {
-        await deleteDoc(doc(db, "support_tickets", id));
-        alert("Ticket deleted.");
-        fetchTickets();
-        } catch (e) { alert("Failed to delete ticket."); }
-        };
-
-        window.updateStatus = async (id, status) => {
-        try {
-        const docRef = doc(db, "shared_configs", id);
-        if (status === 'approved') await updateDoc(docRef, { status: 'approved' });
-        else await deleteDoc(docRef);
-        renderConfigs();
-        } catch (e) { alert("Failed to update status."); }
-        };
-
-        // --- Firebase Logic ---
-        try {
-        const app = initializeApp(firebaseConfig);
-        db = initializeFirestore(app, { experimentalForceLongPolling: true });
-        auth = getAuth(app);
-        provider = new GoogleAuthProvider();
-
-        onAuthStateChanged(auth, async (user) => {
-        currentUser = user;
-        const loginScreen = document.getElementById('login-screen');
-        const adminPanel = document.getElementById('admin-panel');
-        const authBtn = document.getElementById('auth-btn');
-
-        if (user && user.uid === ADMIN_UID) {
-        if (loginScreen) loginScreen.classList.add('hidden');
-        if (adminPanel) adminPanel.classList.remove('hidden');
-        try {
-        const userDoc = await getDoc(doc(db, "users", user.email));
-        if (userDoc.exists()) {
-        mcAccount = userDoc.data();
-        if (authBtn) {
-        authBtn.innerHTML = `<div class="flex items-center gap-3">
-            <img src="https://mc-heads.net/avatar/${mcAccount.mc_name}/32"
-                class="w-8 h-8 rounded border border-white/20" alt="Skin">
-            <div class="text-left">
-                <div class="text-[10px] opacity-50 leading-none">Admin</div>
-                <div class="font-bold">${mcAccount.mc_name}</div>
-            </div>
-        </div>`;
-        }
-        }
-        } catch (e) { log("Auth Doc Error: " + e.message); }
-        setupDataFetching();
-        } else if (user) {
-        alert("Access Denied");
-        signOut(auth);
-        } else {
-        if (loginScreen) loginScreen.classList.remove('hidden');
-        if (adminPanel) adminPanel.classList.add('hidden');
-        }
-        updateUI();
-        });
-
-        const loginBtn = document.getElementById('login-btn');
-        const authBtn = document.getElementById('auth-btn');
-
-        const loginHandler = async () => {
-        if (currentUser) signOut(auth);
-        else {
-        try {
-        await signInWithPopup(auth, provider).catch(async (err) => {
-        if (['auth/popup-blocked', 'auth/popup-closed-by-user', 'auth/cancelled-popup-request'].includes(err.code)) {
-        await signInWithRedirect(auth, provider);
-        } else throw err;
-        });
-        } catch (e) { alert("Login failed: " + e.message); }
-        }
-        };
-
-        if (loginBtn) loginBtn.onclick = loginHandler;
-        if (authBtn) authBtn.onclick = loginHandler;
-
-        function setupDataFetching() {
-        const q = query(collection(db, "shared_configs"), where("status", "==", "pending"));
-        onSnapshot(q, (snap) => {
-        log(`Fetched ${snap.size} pending configs`);
-        allConfigs = [];
-        snap.forEach(doc => allConfigs.push({ id: doc.id, ...doc.data() }));
-        dataLoaded = true;
-        renderConfigs();
-        }, (err) => {
-        log("Config Fetch Error: " + err.message);
-        const configList = document.getElementById('config-list');
-        if (configList) {
-        configList.innerHTML = `<div class="glass p-12 text-center text-red-400">
-            <p class="text-xl font-bold">Error loading configurations</p>
-            <p class="text-sm mt-2">${err.message}</p>
-        </div>`;
-        }
-        });
-        }
-
-        updateUI();
+            const app = initializeApp(firebaseConfig);
+            db = initializeFirestore(app, { experimentalForceLongPolling: true });
+            auth = getAuth(app);
+            provider = new GoogleAuthProvider();
+            onAuthStateChanged(auth, async (user) => {
+                currentUser = user;
+                const loginScreen = document.getElementById('login-screen');
+                const adminPanel = document.getElementById('admin-panel');
+                const authBtn = document.getElementById('auth-btn');
+                if (user && user.uid === ADMIN_UID) {
+                    if (loginScreen) loginScreen.classList.add('hidden');
+                    if (adminPanel) adminPanel.classList.remove('hidden');
+                    try {
+                        const userDoc = await getDoc(doc(db, "users", user.email));
+                        if (userDoc.exists()) {
+                            mcAccount = userDoc.data();
+                            if (authBtn) authBtn.innerHTML = `<div class="flex items-center gap-3"><img src="https://mc-heads.net/avatar/${mcAccount.mc_name}/32" class="w-8 h-8 rounded border border-white/20"><div class="text-left"><div class="text-[10px] opacity-50">Admin</div><div class="font-bold">${mcAccount.mc_name}</div></div></div>`;
+                        }
+                    } catch (e) { log("Auth Doc Error: " + e.message); }
+                    setupDataFetching();
+                } else if (user) { alert("Access Denied"); signOut(auth); } else { if (loginScreen) loginScreen.classList.remove('hidden'); if (adminPanel) adminPanel.classList.add('hidden'); }
+                updateUI();
+            });
+            document.getElementById('login-btn').onclick = async () => { try { await signInWithPopup(auth, provider).catch(async (err) => { if (['auth/popup-blocked', 'auth/popup-closed-by-user', 'auth/cancelled-popup-request'].includes(err.code)) await signInWithRedirect(auth, provider); else throw err; }); } catch (e) { alert("Login failed: " + e.message); } };
+            document.getElementById('auth-btn').onclick = () => signOut(auth);
+            function setupDataFetching() {
+                const q = query(collection(db, "shared_configs"), where("status", "==", "pending"));
+                onSnapshot(q, (snap) => { if (fetchTimeout) clearTimeout(fetchTimeout); allConfigs = []; snap.forEach(doc => allConfigs.push({ id: doc.id, ...doc.data() })); dataLoaded = true; renderConfigs(); }, (err) => { log("SDK Error: " + err.message); if (!dataLoaded) fetchConfigsREST(); });
+                fetchTimeout = setTimeout(() => { if (!dataLoaded) fetchConfigsREST(); }, 5000);
+            }
+            updateUI();
         } catch (e) { log("Init Error: " + e.message); }
-        </script>
+    </script>
 </body>
 
 </html>
