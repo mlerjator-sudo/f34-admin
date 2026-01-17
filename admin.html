@@ -59,8 +59,15 @@
 
 <body class="p-4 md:p-8">
     <div id="login-screen" class="max-w-md mx-auto mt-20 glass p-8 text-center">
-        <h1 class="text-3xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">
+        <h1 id="t-admin-login"
+            class="text-3xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">
             F34 Admin Login</h1>
+        <div class="flex justify-center gap-2 mb-6">
+            <button onclick="setLang('en')" id="lang-en"
+                class="px-3 py-1 rounded-lg text-xs font-bold transition-all">EN</button>
+            <button onclick="setLang('ko')" id="lang-ko"
+                class="px-3 py-1 rounded-lg text-xs font-bold transition-all">KO</button>
+        </div>
         <button id="login-btn"
             class="w-full py-3 px-6 rounded-xl bg-white text-black font-semibold hover:bg-slate-200 transition-colors flex items-center justify-center gap-3">
             <svg class="w-5 h-5" viewBox="0 0 24 24">
@@ -73,15 +80,21 @@
                 <path fill="#EA4335"
                     d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
             </svg>
-            Sign in with Google
+            <span id="t-login-text">Sign in with Google</span>
         </button>
     </div>
 
     <div id="admin-panel" class="hidden max-w-5xl mx-auto">
-        <header class="flex justify-between items-center mb-12">
-            <h1 class="text-4xl font-bold">Moderation Panel</h1>
-            <div class="flex items-center gap-4">
-                <a href="index.html"
+        <header class="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-6">
+            <h1 id="t-mod-panel" class="text-4xl font-bold">Moderation Panel</h1>
+            <div class="flex flex-wrap items-center gap-4">
+                <div class="flex glass p-1 rounded-xl">
+                    <button onclick="setLang('en')" id="lang-en-panel"
+                        class="px-3 py-1 rounded-lg text-xs font-bold transition-all">EN</button>
+                    <button onclick="setLang('ko')" id="lang-ko-panel"
+                        class="px-3 py-1 rounded-lg text-xs font-bold transition-all">KO</button>
+                </div>
+                <a href="index.html" id="t-hub"
                     class="px-6 py-2 rounded-lg glass hover:bg-white/10 transition-colors text-sm">Community Hub</a>
                 <button id="auth-btn"
                     class="px-6 py-2 rounded-lg glass hover:bg-white/10 transition-colors text-sm">Login with
@@ -93,30 +106,19 @@
             <div id="category-filter" class="flex flex-wrap gap-2">
                 <button
                     class="filter-btn active px-4 py-2 rounded-lg glass text-[10px] font-bold uppercase tracking-wider transition-all"
-                    data-category="all">All</button>
+                    data-category="all" id="t-all">All</button>
             </div>
         </div>
 
         <div id="config-list" class="space-y-6">
-            <div id="loading-state" class="glass p-12 text-center text-xl animate-pulse">
+            <div id="loading-state" class="glass p-12 text-center text-xl animate-pulse" id="t-loading">
                 Loading pending configurations...
-                <div class="text-xs opacity-50 mt-2" id="debug-status">Initializing Firebase...</div>
             </div>
         </div>
     </div>
 
     <script type="module">
-        const statusEl = document.getElementById('debug-status');
-        const log = (msg) => {
-            console.log(`[F34-Admin] ${msg}`);
-            if (statusEl) {
-                const div = document.createElement('div');
-                div.textContent = msg;
-                statusEl.appendChild(div);
-            }
-        };
-
-        log("Admin Panel Script Starting...");
+        const log = (msg) => console.log(`[F34-Admin] ${msg}`);
 
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, signInWithPopup, signInWithRedirect, getRedirectResult, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
@@ -131,18 +133,99 @@
             appId: "1:660590227115:web:0f1ca3aa9464f2406c11ee"
         };
 
-        try {
-            log("Initializing App...");
-            const app = initializeApp(firebaseConfig);
+        // --- i18n ---
+        const i18n = {
+            en: {
+                adminLogin: "F34 Admin Login",
+                loginText: "Sign in with Google",
+                modPanel: "Moderation Panel",
+                hub: "Community Hub",
+                login: "Login with Google",
+                logout: "Logout",
+                admin: "Admin",
+                all: "All",
+                loading: "Loading pending configurations...",
+                approve: "Approve",
+                reject: "Reject",
+                raw: "View Raw JSON",
+                noPending: "No pending configurations.",
+                noResults: "No results in this category.",
+                noDesc: "No description.",
+                categories: {
+                    Adventure: "Adventure", Horror: "Horror", Decoration: "Decoration", Economy: "Economy", Equipment: "Equipment", Food: "Food", "Game Mechanics": "Game Mechanics", Library: "Library", Magic: "Magic", Management: "Management", Minigame: "Minigame", Mobs: "Mobs", Optimization: "Optimization", Social: "Social", Storage: "Storage", Technology: "Technology", Transportation: "Transportation", Utility: "Utility", "World Gen": "World Gen", General: "General", Convenience: "Convenience"
+                }
+            },
+            ko: {
+                adminLogin: "F34 관리자 로그인",
+                loginText: "Google로 로그인",
+                modPanel: "관리자 패널",
+                hub: "커뮤니티 허브",
+                login: "Google로 로그인",
+                logout: "로그아웃",
+                admin: "관리자",
+                all: "전체",
+                loading: "대기 중인 설정을 불러오는 중...",
+                approve: "승인",
+                reject: "거절",
+                raw: "원본 JSON 보기",
+                noPending: "대기 중인 설정이 없습니다.",
+                noResults: "이 카테고리에 결과가 없습니다.",
+                noDesc: "설명이 없습니다.",
+                categories: {
+                    Adventure: "모험", Horror: "공포", Decoration: "장식", Economy: "경제", Equipment: "장비", Food: "음식", "Game Mechanics": "게임 메커니즘", Library: "라이브러리", Magic: "마법", Management: "관리", Minigame: "미니게임", Mobs: "몹", Optimization: "최적화", Social: "소셜", Storage: "저장", Technology: "기술", Transportation: "이동수단", Utility: "유틸리티", "World Gen": "월드 생성", General: "일반", Convenience: "편의성"
+                }
+            }
+        };
 
-            log("Initializing Firestore (Long Polling)...");
-            const db = initializeFirestore(app, {
-                experimentalForceLongPolling: true
+        let currentLang = localStorage.getItem('f34_lang') || 'en';
+
+        window.setLang = (lang) => {
+            currentLang = lang;
+            localStorage.setItem('f34_lang', lang);
+            updateUI();
+        };
+
+        function updateUI() {
+            const t = i18n[currentLang];
+            if (document.getElementById('t-admin-login')) document.getElementById('t-admin-login').textContent = t.adminLogin;
+            if (document.getElementById('t-login-text')) document.getElementById('t-login-text').textContent = t.loginText;
+            if (document.getElementById('t-mod-panel')) document.getElementById('t-mod-panel').textContent = t.modPanel;
+            if (document.getElementById('t-hub')) document.getElementById('t-hub').textContent = t.hub;
+            if (document.getElementById('t-all')) document.getElementById('t-all').textContent = t.all;
+            if (document.getElementById('t-loading')) document.getElementById('t-loading').textContent = t.loading;
+
+            // Update auth button text if not logged in
+            if (!currentUser) {
+                document.getElementById('auth-btn').textContent = t.login;
+            }
+
+            // Update language switcher styles
+            ['lang-en', 'lang-ko', 'lang-en-panel', 'lang-ko-panel'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    const isEn = id.includes('en');
+                    const isActive = (isEn && currentLang === 'en') || (!isEn && currentLang === 'ko');
+                    el.className = `px-3 py-1 rounded-lg text-xs font-bold transition-all ${isActive ? 'bg-blue-500 text-white' : 'hover:bg-white/10'}`;
+                }
             });
 
-            const auth = getAuth(app);
-            const provider = new GoogleAuthProvider();
-            const ADMIN_UID = "3HhMIE2eDTcev32kChg08g1GjNO2";
+            renderCategories();
+            renderConfigs();
+        }
+
+        let db, auth, provider;
+        const ADMIN_UID = "3HhMIE2eDTcev32kChg08g1GjNO2";
+        let currentUser = null;
+        let mcAccount = null;
+        let currentCategory = 'all';
+        let allConfigs = [];
+        let dataLoaded = false;
+
+        try {
+            const app = initializeApp(firebaseConfig);
+            db = initializeFirestore(app, { experimentalForceLongPolling: true });
+            auth = getAuth(app);
+            provider = new GoogleAuthProvider();
 
             const loginScreen = document.getElementById('login-screen');
             const adminPanel = document.getElementById('admin-panel');
@@ -150,235 +233,164 @@
             const filterContainer = document.getElementById('category-filter');
             const authBtn = document.getElementById('auth-btn');
 
-            const CATEGORIES = [
-                "Adventure", "Horror", "Decoration", "Economy", "Equipment", "Food",
-                "Game Mechanics", "Library", "Magic", "Management", "Minigame", "Mobs",
-                "Optimization", "Social", "Storage", "Technology", "Transportation",
-                "Utility", "World Gen", "General", "Convenience"
-            ];
-
-            let currentCategory = 'all';
-            let allConfigs = [];
-            let currentUser = null;
-            let mcAccount = null;
-
-            log("Checking redirect result...");
-            getRedirectResult(auth).then((result) => {
-                if (result) log("Admin Redirect login: " + result.user.email);
-                else log("No redirect result.");
-            }).catch((error) => {
-                log("Redirect Error: " + error.code);
-            });
-
-            // Setup filter buttons
-            CATEGORIES.forEach(cat => {
-                const btn = document.createElement('button');
-                btn.className = 'filter-btn px-4 py-2 rounded-lg glass text-[10px] font-bold uppercase tracking-wider transition-all';
-                btn.textContent = cat;
-                btn.dataset.category = cat;
-                btn.onclick = () => setFilter(cat);
-                filterContainer.appendChild(btn);
-            });
-
-            document.querySelector('[data-category="all"]').onclick = () => setFilter('all');
-
-            function setFilter(cat) {
-                currentCategory = cat;
-                document.querySelectorAll('.filter-btn').forEach(btn => {
-                    btn.classList.toggle('active', btn.dataset.category === cat);
-                });
-                renderConfigs();
-            }
-
-            document.getElementById('login-btn').onclick = async () => {
-                try {
-                    await signInWithPopup(auth, provider).catch(async (error) => {
-                        if (error.code === 'auth/popup-blocked' || error.code === 'auth/popup-closed-by-user' || error.code === 'auth/cancelled-popup-request') {
-                            await signInWithRedirect(auth, provider);
-                        } else {
-                            throw error;
-                        }
-                    });
-                } catch (error) {
-                    alert('Login failed: ' + error.message);
-                }
-            };
-
-            authBtn.onclick = async () => {
-                if (currentUser) {
-                    signOut(auth);
-                } else {
-                    try {
-                        await signInWithPopup(auth, provider).catch(async (error) => {
-                            if (error.code === 'auth/popup-blocked' || error.code === 'auth/popup-closed-by-user' || error.code === 'auth/cancelled-popup-request') {
-                                await signInWithRedirect(auth, provider);
-                            } else {
-                                throw error;
-                            }
-                        });
-                    } catch (error) {
-                        console.error("Login Error:", error);
-                    }
-                }
-            };
-
             onAuthStateChanged(auth, async (user) => {
-                log("Auth state: " + (user ? user.email : "Logged out"));
                 currentUser = user;
+                const t = i18n[currentLang];
                 if (user && user.uid === ADMIN_UID) {
                     loginScreen.classList.add('hidden');
                     adminPanel.classList.remove('hidden');
-
                     try {
                         const userDoc = await getDoc(doc(db, "users", user.email));
                         if (userDoc.exists()) {
                             mcAccount = userDoc.data();
-                            authBtn.innerHTML = `
-                                <div class="flex items-center gap-3">
-                                    <img src="https://mc-heads.net/avatar/${mcAccount.mc_name}/32" class="w-8 h-8 rounded border border-white/20" alt="Skin">
-                                    <div class="text-left">
-                                        <div class="text-[10px] opacity-50 leading-none">Admin</div>
-                                        <div class="font-bold">${mcAccount.mc_name}</div>
-                                    </div>
-                                </div>
-                            `;
-                            authBtn.classList.add('bg-white/5');
-                        } else {
-                            mcAccount = null;
-                            authBtn.textContent = 'Link Minecraft (Login in Mod)';
+                            authBtn.innerHTML = `<div class="flex items-center gap-3">
+                                <img src="https://mc-heads.net/avatar/${mcAccount.mc_name}/32" class="w-8 h-8 rounded border border-white/20" alt="Skin">
+                                <div class="text-left"><div class="text-[10px] opacity-50 leading-none">${t.admin}</div><div class="font-bold">${mcAccount.mc_name}</div></div>
+                            </div>`;
                         }
-                    } catch (e) {
-                        log("User Doc Error: " + e.message);
-                    }
-
-                    setupRealtimeUpdates();
+                    } catch (e) { log("Auth Doc Error: " + e.message); }
+                    setupDataFetching();
                 } else if (user) {
                     alert("Access Denied");
                     signOut(auth);
                 } else {
                     loginScreen.classList.remove('hidden');
                     adminPanel.classList.add('hidden');
-                    authBtn.textContent = 'Login with Google';
-                    authBtn.classList.remove('bg-white/5');
                 }
+                updateUI();
             });
 
-            function setupRealtimeUpdates() {
+            document.getElementById('login-btn').onclick = authBtn.onclick = async () => {
+                if (currentUser && this === authBtn) signOut(auth);
+                else {
+                    try {
+                        await signInWithPopup(auth, provider).catch(async (err) => {
+                            if (['auth/popup-blocked', 'auth/popup-closed-by-user', 'auth/cancelled-popup-request'].includes(err.code)) {
+                                await signInWithRedirect(auth, provider);
+                            } else throw err;
+                        });
+                    } catch (e) { alert("Login failed: " + e.message); }
+                }
+            };
+
+            const CATEGORIES = ["Adventure", "Horror", "Decoration", "Economy", "Equipment", "Food", "Game Mechanics", "Library", "Magic", "Management", "Minigame", "Mobs", "Optimization", "Social", "Storage", "Technology", "Transportation", "Utility", "World Gen", "General", "Convenience"];
+
+            function renderCategories() {
+                const t = i18n[currentLang];
+                const allBtn = document.getElementById('t-all');
+                if (!filterContainer) return;
+                filterContainer.innerHTML = '';
+                filterContainer.appendChild(allBtn);
+
+                CATEGORIES.forEach(cat => {
+                    const btn = document.createElement('button');
+                    btn.className = `filter-btn px-4 py-2 rounded-lg glass text-[10px] font-bold uppercase tracking-wider transition-all ${currentCategory === cat ? 'active' : ''}`;
+                    btn.textContent = t.categories[cat] || cat;
+                    btn.dataset.category = cat;
+                    btn.onclick = () => setFilter(cat);
+                    filterContainer.appendChild(btn);
+                });
+            }
+
+            window.setFilter = (cat) => {
+                currentCategory = cat;
+                document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.category === cat));
+                renderConfigs();
+            }
+
+            function setupDataFetching() {
                 const q = query(collection(db, "shared_configs"), where("status", "==", "pending"));
-                const qAll = collection(db, "shared_configs");
+                getDocs(q).then(snap => {
+                    if (dataLoaded) return;
+                    processSnapshot(snap);
+                }).catch(err => {
+                    if (!dataLoaded) fetchViaREST();
+                });
+                setTimeout(() => {
+                    if (!dataLoaded) fetchViaREST();
+                }, 3000);
+            }
 
-                // Diagnostic: Test REST API
-                log("Testing REST API...");
-                fetch(`https://firestore.googleapis.com/v1/projects/f34-di/databases/(default)/documents/shared_configs?pageSize=1`)
-                    .then(r => {
-                        log("REST Status: " + r.status);
-                        return r.json();
-                    })
-                    .then(data => {
-                        if (data.error) log("REST Error: " + data.error.message);
-                        else log("REST Success: Found " + (data.documents ? data.documents.length : 0) + " docs");
-                    })
-                    .catch(e => log("REST Failed: " + e.message));
+            async function fetchViaREST() {
+                if (dataLoaded) return;
+                try {
+                    const url = `https://firestore.googleapis.com/v1/projects/f34-di/databases/(default)/documents/shared_configs`;
+                    const response = await fetch(url);
+                    const data = await response.json();
+                    if (data.documents) {
+                        allConfigs = data.documents
+                            .map(doc => {
+                                const fields = doc.fields;
+                                const obj = { id: doc.name.split('/').pop() };
+                                for (let key in fields) {
+                                    obj[key] = fields[key].stringValue || fields[key].integerValue || fields[key].doubleValue || fields[key].booleanValue || null;
+                                }
+                                return obj;
+                            })
+                            .filter(c => c.status === 'pending');
+                        dataLoaded = true;
+                        renderConfigs();
+                    }
+                } catch (e) { log("REST Fallback Failed: " + e.message); }
+            }
 
-                log("Fetching pending data...");
-                getDocs(q).then((snapshot) => {
-                    log("Initial pending fetch complete. Count: " + snapshot.size);
+            function processSnapshot(snap) {
+                allConfigs = [];
+                snap.forEach(doc => allConfigs.push({ id: doc.id, ...doc.data() }));
+                dataLoaded = true;
+                renderConfigs();
+                onSnapshot(query(collection(db, "shared_configs"), where("status", "==", "pending")), (s) => {
                     allConfigs = [];
-                    snapshot.forEach(doc => {
-                        allConfigs.push({ id: doc.id, ...doc.data() });
-                    });
+                    s.forEach(doc => allConfigs.push({ id: doc.id, ...doc.data() }));
                     renderConfigs();
-
-                    log("Setting up real-time listener...");
-                    onSnapshot(q, (snap) => {
-                        log("Pending update received. Count: " + snap.size);
-                        allConfigs = [];
-                        snap.forEach(doc => {
-                            allConfigs.push({ id: doc.id, ...doc.data() });
-                        });
-                        renderConfigs();
-                    }, (err) => {
-                        log("Snapshot Error: " + err.code);
-                    });
-                }).catch((err) => {
-                    log("Fetch Error: " + err.message);
-                    log("Trying un-filtered fallback...");
-                    getDocs(qAll).then(snap => {
-                        log("Un-filtered success! Count: " + snap.size);
-                        allConfigs = [];
-                        snap.forEach(doc => {
-                            const data = doc.data();
-                            if (data.status === 'pending') allConfigs.push({ id: doc.id, ...data });
-                        });
-                        renderConfigs();
-                    }).catch(e => log("Fallback Error: " + e.message));
                 });
             }
 
             function renderConfigs() {
-                const filtered = currentCategory === 'all'
-                    ? allConfigs
-                    : allConfigs.filter(c => c.category === currentCategory);
-
-                if (filtered.length === 0 && allConfigs.length > 0) {
-                    configList.innerHTML = '<div class="glass p-12 text-center text-xl">No pending configurations in this category.</div>';
-                    return;
-                } else if (allConfigs.length === 0) {
+                if (!dataLoaded) return;
+                const t = i18n[currentLang];
+                const filtered = currentCategory === 'all' ? allConfigs : allConfigs.filter(c => c.category === currentCategory);
+                if (filtered.length === 0) {
+                    configList.innerHTML = `<div class="glass p-12 text-center text-xl">${allConfigs.length === 0 ? t.noPending : t.noResults}</div>`;
                     return;
                 }
-
                 configList.innerHTML = '';
                 filtered.forEach((data) => {
                     const div = document.createElement('div');
                     div.className = `glass p-6 card-hover`;
-
-                    let configSummary = '';
-                    let rawJson = '';
+                    let configSummary = '', rawJson = '';
                     try {
                         const config = JSON.parse(data.config_json);
                         rawJson = JSON.stringify(config, null, 2);
-                        if (config.buttons && config.buttons.length > 0) {
-                            configSummary = `
-                                <div class="mt-4 flex flex-wrap gap-3">
-                                    ${config.buttons.map((btn, i) => `
-                                        <div class="icon-badge p-3 rounded-xl flex flex-col gap-2 min-w-[150px]">
-                                            <div class="flex items-center gap-2">
-                                                <span class="opacity-40 text-[10px] font-mono bg-white/5 px-1 rounded">${btn.iconItem ? btn.iconItem.split(':').pop() : 'unknown'}</span>
-                                                <span class="font-bold text-sm">${btn.name || 'Unknown'}</span>
-                                            </div>
-                                            <div class="text-[11px] font-mono text-blue-300 bg-blue-500/10 p-2 rounded border border-blue-500/20 break-all leading-tight">
-                                                ${(btn.commands && btn.commands.length > 0) ? btn.commands.join('<br>') : (btn.command || 'No Command')}
-                                            </div>
-                                        </div>
-                                    `).join('')}
-                                </div>
-                            `;
+                        if (config.buttons) {
+                            configSummary = `<div class="mt-4 flex flex-wrap gap-3">
+                                ${config.buttons.map(btn => `<div class="icon-badge p-3 rounded-xl flex flex-col gap-2 min-w-[150px]">
+                                    <div class="flex items-center gap-2"><span class="font-bold text-sm">${btn.name || 'Unknown'}</span></div>
+                                    <div class="text-[11px] font-mono text-blue-300 bg-blue-500/10 p-2 rounded border border-blue-500/20 break-all leading-tight">${btn.command || 'No Command'}</div>
+                                </div>`).join('')}
+                            </div>`;
                         }
-                    } catch (e) {
-                        configSummary = '<p class="text-red-400 text-sm mt-2">Invalid configuration data</p>';
-                    }
-
+                    } catch (e) { }
                     div.innerHTML = `
                         <div class="flex flex-col md:flex-row justify-between gap-6">
                             <div class="flex-1">
                                 <div class="flex items-center gap-3">
                                     <h3 class="text-2xl font-bold">${data.name || 'Untitled'}</h3>
-                                    <span class="px-2 py-1 rounded-md bg-blue-500/20 text-blue-400 text-xs font-bold uppercase tracking-wider border border-blue-500/30">${data.category || 'General'}</span>
+                                    <span class="px-2 py-1 rounded-md bg-blue-500/20 text-blue-400 text-xs font-bold uppercase tracking-wider border border-blue-500/30">${t.categories[data.category] || data.category || t.categories.General}</span>
                                 </div>
                                 <p class="text-slate-400 text-sm">by ${data.author || 'Unknown'}</p>
-                                <p class="mt-3 text-slate-300 italic">"${data.description || 'No description.'}"</p>
+                                <p class="mt-3 text-slate-300 italic">"${data.description || t.noDesc}"</p>
                                 ${configSummary}
                             </div>
                             <div class="flex md:flex-col gap-3 justify-center items-center">
-                                <button onclick="updateStatus('${data.id}', 'approved')" class="btn-approve px-8 py-3 rounded-xl font-bold text-white transition-transform active:scale-95 w-full md:w-32">Approve</button>
-                                <button onclick="updateStatus('${data.id}', 'rejected')" class="btn-reject px-8 py-3 rounded-xl font-bold text-white transition-transform active:scale-95 w-full md:w-32">Reject</button>
+                                <button onclick="updateStatus('${data.id}', 'approved')" class="btn-approve px-8 py-3 rounded-xl font-bold text-white transition-transform active:scale-95 w-full md:w-32">${t.approve}</button>
+                                <button onclick="updateStatus('${data.id}', 'rejected')" class="btn-reject px-8 py-3 rounded-xl font-bold text-white transition-transform active:scale-95 w-full md:w-32">${t.reject}</button>
                             </div>
                         </div>
                         <details class="mt-6">
-                            <summary class="text-xs text-slate-500 cursor-pointer hover:text-slate-300 uppercase tracking-widest font-bold">View Raw JSON</summary>
+                            <summary class="text-xs text-slate-500 cursor-pointer hover:text-slate-300 uppercase tracking-widest font-bold">${t.raw}</summary>
                             <pre class="mt-4 p-4 rounded-xl bg-black/40 text-xs font-mono overflow-x-auto border border-white/5 text-blue-300">${rawJson}</pre>
-                        </details>
-                    `;
+                        </details>`;
                     configList.appendChild(div);
                 });
             }
@@ -388,13 +400,11 @@
                     const docRef = doc(db, "shared_configs", id);
                     if (status === 'approved') await updateDoc(docRef, { status: 'approved' });
                     else await deleteDoc(docRef);
-                } catch (e) {
-                    alert("Failed to update status.");
-                }
+                } catch (e) { alert("Failed to update status."); }
             };
-        } catch (globalError) {
-            log("Global Init Error: " + globalError.message);
-        }
+
+            updateUI();
+        } catch (e) { log("Init Error: " + e.message); }
     </script>
 </body>
 
