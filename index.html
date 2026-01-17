@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>F34 Community Hub</title>
+    <title>F34 DI-Community Hub</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
@@ -97,12 +97,15 @@
     <div id="main-content">
         <!-- Header -->
         <header class="max-w-7xl mx-auto px-6 pt-12 pb-8 flex flex-col md:flex-row justify-between items-center gap-8">
-            <div class="text-center md:text-left">
-                <h1
-                    class="text-5xl font-black tracking-tighter bg-gradient-to-r from-white to-slate-500 bg-clip-text text-transparent text-white">
-                    F34 Community</h1>
-                <p class="text-slate-400 mt-2 text-lg font-light" id="t-subtitle">Discover and download shared
-                    configurations</p>
+            <div class="text-center md:text-left flex flex-col md:flex-row items-center gap-6">
+                <img src="logo.png" alt="F34 Logo" class="w-20 h-20 rounded-3xl shadow-2xl border border-white/10">
+                <div>
+                    <h1
+                        class="text-5xl font-black tracking-tighter bg-gradient-to-r from-white to-slate-500 bg-clip-text text-transparent text-white">
+                        F34 DI-Community</h1>
+                    <p class="text-slate-400 mt-2 text-lg font-light" id="t-subtitle">Discover and download shared
+                        configurations</p>
+                </div>
             </div>
             <div class="flex flex-wrap justify-center items-center gap-4">
                 <!-- Language Switcher -->
@@ -131,7 +134,7 @@
                     Login with Google
                 </button>
 
-                <!-- My Configs Button (Hidden by default) -->
+                <!-- My Configs Button -->
                 <button id="my-configs-btn" onclick="openMyConfigsModal()"
                     class="glass px-6 py-3 font-bold hover:bg-white/5 transition-all hidden" id="t-my-configs">My
                     Configs</button>
