@@ -102,6 +102,7 @@
         const authBtn = document.getElementById('auth-btn');
 
         let currentUser = null;
+        let mcAccount = null;
         let currentCategory = 'all';
         let allConfigs = [];
 
@@ -113,9 +114,33 @@
             }
         };
 
-        onAuthStateChanged(auth, (user) => {
+        onAuthStateChanged(auth, async (user) => {
             currentUser = user;
-            authBtn.textContent = user ? `Logout (${user.displayName.split(' ')[0]})` : 'Login with Google';
+            if (user) {
+                // Check if linked with Minecraft
+                const userDoc = await getDoc(doc(db, "users", user.email));
+                if (userDoc.exists()) {
+                    mcAccount = userDoc.data();
+                    authBtn.innerHTML = `
+                        <div class="flex items-center gap-3">
+                            <img src="https://mc-heads.net/avatar/${mcAccount.mc_name}/32" class="w-8 h-8 rounded border border-white/20" alt="Skin">
+                            <div class="text-left">
+                                <div class="text-[10px] opacity-50 leading-none">Logged in as</div>
+                                <div class="font-bold">${mcAccount.mc_name}</div>
+                            </div>
+                        </div>
+                    `;
+                    authBtn.classList.add('bg-white/5');
+                } else {
+                    mcAccount = null;
+                    authBtn.textContent = 'Link Minecraft (Login in Mod)';
+                    alert('Your Google account is not linked with Minecraft. Please login using the F34 mod in Minecraft first.');
+                }
+            } else {
+                mcAccount = null;
+                authBtn.textContent = 'Login with Google';
+                authBtn.classList.remove('bg-white/5');
+            }
             renderConfigs();
         });
 
@@ -193,7 +218,7 @@
                         <p class="mt-4 text-sm text-slate-300 line-clamp-2">"${data.description}"</p>
                         ${btnSummary}
                     </div>
-                    <button onclick="handleDownload('${data.id}')" class="btn-download mt-6 w-full py-3 rounded-xl font-bold text-white transition-transform active:scale-95 ${!currentUser ? 'opacity-50 cursor-not-allowed' : ''}">${currentUser ? 'Download' : 'Login to Download'}</button>
+                    <button onclick="handleDownload('${data.id}')" class="btn-download mt-6 w-full py-3 rounded-xl font-bold text-white transition-transform active:scale-95 ${(!currentUser || !mcAccount) ? 'opacity-50 cursor-not-allowed' : ''}">${(currentUser && mcAccount) ? 'Download' : (currentUser ? 'Link Minecraft' : 'Login to Download')}</button>
                 `;
                 configList.appendChild(div);
             });
@@ -203,6 +228,10 @@
             if (!currentUser) {
                 alert('Please login with Google to download configurations.');
                 signInWithPopup(auth, provider);
+                return;
+            }
+            if (!mcAccount) {
+                alert('Your Google account is not linked with Minecraft. Please login using the F34 mod in Minecraft first.');
                 return;
             }
             const docRef = doc(db, "shared_configs", id);
