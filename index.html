@@ -123,7 +123,6 @@
                 signOut(auth);
             } else {
                 try {
-                    // Try popup first
                     await signInWithPopup(auth, provider).catch(async (error) => {
                         console.warn("Popup failed, trying redirect...", error.code);
                         if (error.code === 'auth/popup-blocked' || error.code === 'auth/popup-closed-by-user' || error.code === 'auth/cancelled-popup-request') {
@@ -166,7 +165,6 @@
                     }
                 } catch (e) {
                     console.error("Firestore Check Error:", e);
-                    alert('Failed to verify account link. Please check your internet connection or try again later.');
                 }
             } else {
                 mcAccount = null;
