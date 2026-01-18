@@ -637,6 +637,29 @@
         let currentCategory = 'All';
         let fetchTimeout = null;
 
+        const app = initializeApp(firebaseConfig);
+        db = initializeFirestore(app, { experimentalForceLongPolling: true });
+        auth = initializeAuth(app, {
+            persistence: browserLocalPersistence,
+            popupRedirectResolver: browserPopupRedirectResolver
+        });
+        provider = new GoogleAuthProvider();
+
+        onAuthStateChanged(auth, (user) => {
+            currentUser = user;
+            updateUI();
+            if (user) {
+                const q = query(collection(db, "users"), where("email", "==", user.email));
+                getDocs(q).then(snap => {
+                    if (!snap.empty) {
+                        mcAccount = snap.docs[0].data();
+                    }
+                });
+            } else {
+                mcAccount = null;
+            }
+        });
+
         function log(msg) { console.log(`[F34 Hub] ${msg}`); }
 
         window.setLang = (lang) => {
