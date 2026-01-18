@@ -340,7 +340,7 @@
                                 category: fields.category?.stringValue,
                                 description: fields.description?.stringValue,
                                 status: fields.status?.stringValue,
-                                data: fields.data?.stringValue || fields.config_json?.stringValue
+                                data: fields.config_json?.stringValue || fields.data?.stringValue
                             };
                         })
                         .filter(c => c.status === 'pending');
@@ -573,7 +573,7 @@
                         allConfigs.push({
                             id: doc.id,
                             ...d,
-                            data: d.data || d.config_json
+                            data: d.config_json || d.data
                         });
                     });
                     dataLoaded = true;
