@@ -669,6 +669,25 @@
             updateAuthUI();
         }
 
+        function updateAuthUI() {
+            const t = i18n[currentLang] || i18n.en;
+            const authBtn = document.getElementById('auth-btn');
+            const myConfigsBtn = document.getElementById('my-configs-btn');
+            const adminLink = document.getElementById('t-admin-panel');
+
+            if (currentUser) {
+                authBtn.textContent = t.logout;
+                authBtn.onclick = () => signOut(auth);
+                myConfigsBtn.classList.remove('hidden');
+                adminLink.classList.remove('hidden');
+            } else {
+                authBtn.textContent = t.login;
+                authBtn.onclick = () => signInWithPopup(auth, provider);
+                myConfigsBtn.classList.add('hidden');
+                adminLink.classList.add('hidden');
+            }
+        }
+
         function renderCategories() {
             const t = i18n[currentLang] || i18n.en;
             const catList = document.getElementById('category-list');
@@ -900,13 +919,36 @@
         window.closeMyConfigsModal = () => document.getElementById('my-configs-modal').classList.add('hidden');
 
         window.deleteMyConfig = async (id) => {
-            dataLoaded = true;
-            renderConfigs();
-        }, (err) => {
-            log("SDK Error: " + err.message);
-            if (!dataLoaded) fetchConfigsREST();
-        });
-        fetchTimeout = setTimeout(() => { if (!dataLoaded) fetchConfigsREST(); }, 5000);
+            const t = i18n[currentLang] || i18n.en;
+            if (!confirm(t.deleteConfirm)) return;
+            try {
+                await deleteDoc(doc(db, "shared_configs", id));
+                alert(t.deleteSuccess);
+                openMyConfigsModal();
+                setupDataFetching();
+            } catch (e) { alert(t.deleteError); }
+        };
+
+        function setupDataFetching() {
+            const q = query(collection(db, "shared_configs"), where("status", "==", "approved"));
+            onSnapshot(q, (snap) => {
+                if (fetchTimeout) clearTimeout(fetchTimeout);
+                allConfigs = [];
+                snap.forEach(doc => {
+                    const d = doc.data();
+                    allConfigs.push({
+                        id: doc.id,
+                        ...d,
+                        data: d.config_json || d.data
+                    });
+                });
+                dataLoaded = true;
+                renderConfigs();
+            }, (err) => {
+                log("SDK Error: " + err.message);
+                if (!dataLoaded) fetchConfigsREST();
+            });
+            fetchTimeout = setTimeout(() => { if (!dataLoaded) fetchConfigsREST(); }, 5000);
         }
 
         try {
