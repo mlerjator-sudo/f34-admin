@@ -742,243 +742,17 @@
                                 author: fields.author?.stringValue,
                                 category: fields.category?.stringValue,
                                 description: fields.description?.stringValue,
-                                downloads: parseInt(fields.downloads?.integerValue || 0),
-                                status: fields.status?.stringValue,
-                                data: fields.config_json?.stringValue || fields.data?.stringValue
-                            };
-                        })
-                        .filter(c => c.status === 'approved');
-                    dataLoaded = true;
-                    renderConfigs();
-                }
-            } catch (e) { log("REST Fallback Error: " + e.message); }
-        }
-        raw: "Rohdaten",
-            close: "Schließen",
-                support: "Support",
-                    supportTitle: "Kundencenter",
-                        supportDesc: "Hast du ein Problem oder einen Vorschlag? Sende uns eine Nachricht.",
-                            supportSuccess: "Ticket erfolgreich gesendet!",
-                                supportError: "Fehler beim Senden des Tickets.",
-                                    bannedTitle: "Du bist gesperrt",
-                                        bannedDesc: "Dein Zugriff auf das Community-Hub wurde aufgrund eines Verstoßes gegen unsere Bedingungen eingeschränkt.",
-                                            myConfigs: "Meine Configs",
-                                                myConfigsTitle: "Meine Konfigurationen",
-                                                    noMyConfigs: "Du hast noch keine Konfigurationen bereitgestellt.",
-                                                        deleteConfirm: "Bist du sicher, dass du diese Konfiguration löschen möchtest?",
-                                                            deleteSuccess: "Konfiguration erfolgreich gelöscht.",
-                                                                deleteError: "Löschen fehlgeschlagen.",
-                                                                    statusPending: "Ausstehend",
-                                                                        statusApproved: "Genehmigt",
-                                                                            adminPanel: "Admin-Panel",
-                                                                                categories: {
-            All: "Alle", Adventure: "Abenteuer", Horror: "Horror", Decoration: "Dekoration", Economy: "Wirtschaft", Equipment: "Ausrüstung", Food: "Essen", "Game Mechanics": "Spielmechanik", Library: "Bibliothek", Magic: "Magie", Management: "Verwaltung", Minigame: "Minispiel", Mobs: "Kreaturen", Optimization: "Optimierung", Social: "Sozial", Storage: "Lagerung", Technology: "Technologie", Transportation: "Transport", Utility: "Dienstprogramm", "World Gen": "Weltgen.", General: "Allgemein", Convenience: "Komfort"
-        }
-            },
-        ru: {
-            subtitle: "Находите и скачивайте общие конфигурации",
-                loading: "Загрузка конфигураций...",
-                    noConfigs: "Общих конфигураций пока нет.",
-                        noResults: "Нет конфигураций в этой категории.",
-                            login: "Войти через Google",
-                                linkMod: "Привязать Minecraft (Войдите в моде)",
-                                    loggedInAs: "Вы вошли как:",
-                                        logout: "Выйти",
-                                            download: "Скачать",
-                                                details: "Подробнее",
-                                                    loginToDownload: "Войдите, чтобы скачать",
-                                                        link: "Привязать аккаунт",
-                                                            loginAlert: "Пожалуйста, сначала войдите в систему.",
-                                                                linkAlert: "Пожалуйста, сначала привяжите свой аккаунт Minecraft, войдя через мод F34.",
-                                                                    modalTitle: "Детали конфигурации",
-                                                                        info: "Информация",
-                                                                            author: "Автор",
-                                                                                category: "Категория",
-                                                                                    downloads: "Загрузки",
-                                                                                        description: "Описание",
-                                                                                            noDesc: "Описание отсутствует.",
-                                                                                                buttons: "Кнопки",
-                                                                                                    noButtons: "В этой конфигурации нет кастомных кнопок.",
-                                                                                                        raw: "Исходные данные",
-                                                                                                            close: "Закрыть",
-                                                                                                                support: "Поддержка",
-                                                                                                                    supportTitle: "Центр поддержки",
-                                                                                                                        supportDesc: "Есть проблема или предложение? Отправьте нам сообщение.",
-                                                                                                                            supportSuccess: "Тикет успешно отправлен!",
-                                                                                                                                supportError: "Ошибка при отправке тикета.",
-                                                                                                                                    bannedTitle: "Вы заблокированы",
-                                                                                                                                        bannedDesc: "Ваш доступ к сообществу ограничен из-за нарушения наших условий.",
-                                                                                                                                            myConfigs: "Мои конфиги",
-                                                                                                                                                myConfigsTitle: "Мои конфигурации",
-                                                                                                                                                    noMyConfigs: "Вы еще не развернули ни одной конфигурации.",
-                                                                                                                                                        deleteConfirm: "Вы уверены, что хотите удалить эту конфигурацию?",
-                                                                                                                                                            deleteSuccess: "Конфигурация успешно удалена.",
-                                                                                                                                                                deleteError: "Ошибка при удалении.",
-                                                                                                                                                                    statusPending: "Ожидание",
-                                                                                                                                                                        statusApproved: "Одобрено",
-                                                                                                                                                                            adminPanel: "Админ-панель",
-                                                                                                                                                                                categories: {
-                All: "Все", Adventure: "Приключения", Horror: "Хоррор", Decoration: "Декор", Economy: "Экономика", Equipment: "Снаряжение", Food: "Еда", "Game Mechanics": "Механики", Library: "Библиотека", Magic: "Магия", Management: "Управление", Minigame: "Мини-игра", Mobs: "Мобы", Optimization: "Оптимизация", Social: "Социальное", Storage: "Хранение", Technology: "Технологии", Transportation: "Транспорт", Utility: "Утилиты", "World Gen": "Ген. мира", General: "Общее", Convenience: "Удобство"
-            }
-        }
-        };
-
-        let currentLang = localStorage.getItem('f34_lang') || 'en';
-        let db, auth, provider;
-        let currentUser = null;
-        let mcAccount = null;
-        let allConfigs = [];
-        let dataLoaded = false;
-        let currentCategory = 'All';
-        let fetchTimeout = null;
-
-        function log(msg) { console.log(`[F34 Hub] ${msg}`); }
-
-        window.setLang = (lang) => {
-            currentLang = lang;
-            localStorage.setItem('f34_lang', lang);
-            updateUI();
-        };
-
-        function updateUI() {
-            const t = i18n[currentLang] || i18n.en;
-            const subtitleEl = document.getElementById('t-subtitle');
-            const loadingEl = document.getElementById('t-loading');
-            const supportEl = document.getElementById('t-support');
-            const myConfigsBtn = document.getElementById('my-configs-btn');
-            const adminLink = document.getElementById('t-admin-panel');
-
-            if (subtitleEl) subtitleEl.textContent = t.subtitle;
-            if (loadingEl) loadingEl.textContent = t.loading;
-            if (supportEl) supportEl.textContent = t.support;
-            if (myConfigsBtn) myConfigsBtn.textContent = t.myConfigs;
-            if (adminLink) adminLink.textContent = t.adminPanel;
-
-            document.querySelectorAll('[id^="lang-"]').forEach(btn => {
-                btn.classList.remove('bg-white/10', 'text-blue-400');
-                if (btn.id === `lang-${currentLang}`) btn.classList.add('bg-white/10', 'text-blue-400');
-            });
-
-            renderCategories();
-            renderConfigs();
-            updateAuthUI();
-        }
-
-        function renderCategories() {
-            const t = i18n[currentLang] || i18n.en;
-            const catList = document.getElementById('category-list');
-            if (!catList) return;
-            const categories = Object.keys(t.categories);
-            catList.innerHTML = categories.map(cat => `
-                <button onclick="setCategory('${cat}')" 
-                    class="category-pill px-5 py-2 rounded-xl glass text-sm font-bold hover:bg-white/5 ${currentCategory === cat ? 'active' : ''}">
-                    ${t.categories[cat]}
-                </button>
-            `).join('');
-        }
-
-        window.setCategory = (cat) => {
-            currentCategory = cat;
-            renderCategories();
-            renderConfigs();
-        };
-
-        function renderConfigs() {
-            if (!dataLoaded) return;
-            const t = i18n[currentLang] || i18n.en;
-            const configList = document.getElementById('config-list');
-            if (!configList) return;
-
-            const filtered = allConfigs.filter(c => currentCategory === 'All' || c.category === currentCategory);
-
-            if (filtered.length === 0) {
-                configList.innerHTML = `<div class="col-span-full glass p-20 text-center text-xl text-slate-400">${currentCategory === 'All' ? t.noConfigs : t.noResults}</div>`;
-                return;
-            }
-
-            configList.innerHTML = filtered.map(data => `
-                <div class="glass p-8 card-hover flex flex-col justify-between animate-fade-in">
-                    <div>
-                        <div class="flex justify-between items-start mb-6">
-                            <div>
-                                <h3 class="text-2xl font-black tracking-tighter">${data.name || 'Untitled'}</h3>
-                                <span class="text-[10px] text-blue-400 font-bold uppercase tracking-widest">${t.categories[data.category] || data.category}</span>
-                            </div>
-                            <div class="flex items-center gap-1.5 text-slate-500 text-xs font-bold">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"></path></svg>
-                                ${data.downloads || 0}
-                            </div>
-                        </div>
-                        <p class="text-slate-500 text-xs font-medium">by ${data.author}</p>
-                        <p class="mt-6 text-slate-400 text-sm leading-relaxed line-clamp-3">"${data.description || t.noDesc}"</p>
-                    </div>
-                    <div class="flex gap-3 mt-10">
-                        <button onclick="showDetails('${data.id}')" class="flex-1 py-4 rounded-2xl glass font-bold text-sm hover:bg-white/5 transition-all">${t.details}</button>
-                        <button onclick="downloadConfig('${data.id}')" class="btn-download flex-1 py-4 rounded-2xl font-bold text-sm text-white transition-all">${currentUser ? t.download : t.loginToDownload}</button>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        async function fetchConfigsREST() {
-            log("Attempting REST API fallback...");
-            try {
-                const url = `https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents/shared_configs`;
-                const response = await fetch(url);
-                const data = await response.json();
-                if (data.documents) {
-                    allConfigs = data.documents
-                        .map(doc => {
-                            const fields = doc.fields;
-                            const id = doc.name.split('/').pop();
-                            return {
-                                id: id,
-                                name: fields.name?.stringValue,
-                                author: fields.author?.stringValue,
-                                category: fields.category?.stringValue,
-                                description: fields.description?.stringValue,
-                                downloads: parseInt(fields.downloads?.integerValue || 0),
-                                status: fields.status?.stringValue,
-                                data: fields.config_json?.stringValue || fields.data?.stringValue
-                            };
-                        })
-                        .filter(c => c.status === 'approved');
-                    dataLoaded = true;
-                    renderConfigs();
-                }
-            } catch (e) { log("REST Fallback Error: " + e.message); }
-        }
-
-        window.showDetails = (id) => {
-            const config = allConfigs.find(c => c.id === id);
-            if (!config) return;
-            const t = i18n[currentLang] || i18n.en;
-            const body = document.getElementById('modal-body');
-            const title = document.getElementById('modal-title');
-            const downloadBtn = document.getElementById('modal-download-btn');
-
-            title.textContent = config.name || t.modalTitle;
-            downloadBtn.textContent = currentUser ? t.download : t.loginToDownload;
-            downloadBtn.onclick = () => downloadConfig(id);
-
-            let buttonsHtml = '';
-            try {
-                const configData = JSON.parse(config.data);
-                if (configData.buttons && configData.buttons.length > 0) {
-                    buttonsHtml = `
-                        <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-                            ${configData.buttons.map(btn => `
-                                <div class="glass p-4 rounded-xl border border-white/5">
+                                < div class="glass p-4 rounded-xl border border-white/5" >
                                     <div class="text-[10px] text-slate-500 font-bold uppercase mb-1">${btn.iconItem || 'Button'}</div>
                                     <div class="font-bold text-sm">${btn.name || 'Untitled'}</div>
-                                </div>
-                            `).join('')}
+                                </div >
+                                `).join('')}
                         </div>
                     `;
-                } else { buttonsHtml = `<p class="text-slate-500 italic text-sm">${t.noButtons}</p>`; }
-            } catch (e) { buttonsHtml = `<p class="text-red-400/50 italic text-sm">Error parsing button data</p>`; }
+                        } else { buttonsHtml = `<p class="text-slate-500 italic text-sm">${t.noButtons}</p>`; }
+                    } catch (e) { buttonsHtml = `<p class="text-red-400/50 italic text-sm">Error parsing button data</p>`; }
 
-            body.innerHTML = `
+                body.innerHTML = `
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
                     <div class="space-y-8">
                         <div>
@@ -1004,79 +778,79 @@
                     </div>
                 </div>
             `;
-            modal.classList.remove('hidden');
-            document.body.style.overflow = 'hidden';
-        };
+                modal.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+            };
 
-        window.closeModal = () => {
-            document.getElementById('details-modal').classList.add('hidden');
-            document.body.style.overflow = 'auto';
-        };
+            window.closeModal = () => {
+                document.getElementById('details-modal').classList.add('hidden');
+                document.body.style.overflow = 'auto';
+            };
 
-        window.downloadConfig = async (id) => {
-            const t = i18n[currentLang] || i18n.en;
-            if (!currentUser) { alert(t.loginAlert); return; }
-            if (!mcAccount) { alert(t.linkAlert); return; }
+            window.downloadConfig = async (id) => {
+                const t = i18n[currentLang] || i18n.en;
+                if (!currentUser) { alert(t.loginAlert); return; }
+                if (!mcAccount) { alert(t.linkAlert); return; }
 
-            try {
-                const config = allConfigs.find(c => c.id === id);
-                const blob = new Blob([config.data], { type: 'application/json' });
-                const url = window.URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `${config.name || 'config'}.json`;
-                a.click();
-                await updateDoc(doc(db, "shared_configs", id), { downloads: increment(1) });
-            } catch (e) { log("Download Error: " + e.message); }
-        };
+                try {
+                    const config = allConfigs.find(c => c.id === id);
+                    const blob = new Blob([config.data], { type: 'application/json' });
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `${config.name || 'config'}.json`;
+                    a.click();
+                    await updateDoc(doc(db, "shared_configs", id), { downloads: increment(1) });
+                } catch (e) { log("Download Error: " + e.message); }
+            };
 
-        window.openSupportModal = () => {
-            const t = i18n[currentLang] || i18n.en;
-            if (!currentUser) { alert(t.loginAlert); return; }
-            document.getElementById('support-modal').classList.remove('hidden');
-        };
+            window.openSupportModal = () => {
+                const t = i18n[currentLang] || i18n.en;
+                if (!currentUser) { alert(t.loginAlert); return; }
+                document.getElementById('support-modal').classList.remove('hidden');
+            };
 
-        window.closeSupportModal = () => document.getElementById('support-modal').classList.add('hidden');
+            window.closeSupportModal = () => document.getElementById('support-modal').classList.add('hidden');
 
-        window.submitTicket = async () => {
-            const t = i18n[currentLang] || i18n.en;
-            const msg = document.getElementById('support-message').value;
-            if (!msg) return;
-            try {
-                await addDoc(collection(db, "support_tickets"), {
-                    email: currentUser.email,
-                    mc_name: mcAccount?.mc_name || 'Unknown',
-                    message: msg,
-                    timestamp: Date.now()
-                });
-                alert(t.supportSuccess);
-                document.getElementById('support-message').value = '';
-                closeSupportModal();
-            } catch (e) { alert(t.supportError); }
-        };
+            window.submitTicket = async () => {
+                const t = i18n[currentLang] || i18n.en;
+                const msg = document.getElementById('support-message').value;
+                if (!msg) return;
+                try {
+                    await addDoc(collection(db, "support_tickets"), {
+                        email: currentUser.email,
+                        mc_name: mcAccount?.mc_name || 'Unknown',
+                        message: msg,
+                        timestamp: Date.now()
+                    });
+                    alert(t.supportSuccess);
+                    document.getElementById('support-message').value = '';
+                    closeSupportModal();
+                } catch (e) { alert(t.supportError); }
+            };
 
-        window.openMyConfigsModal = async () => {
-            const t = i18n[currentLang] || i18n.en;
-            if (!currentUser) return;
-            const modal = document.getElementById('my-configs-modal');
-            const list = document.getElementById('my-configs-list');
-            modal.classList.remove('hidden');
-            list.innerHTML = '<div class="animate-pulse text-slate-500">Loading...</div>';
+            window.openMyConfigsModal = async () => {
+                const t = i18n[currentLang] || i18n.en;
+                if (!currentUser) return;
+                const modal = document.getElementById('my-configs-modal');
+                const list = document.getElementById('my-configs-list');
+                modal.classList.remove('hidden');
+                list.innerHTML = '<div class="animate-pulse text-slate-500">Loading...</div>';
 
-            try {
-                const q = query(collection(db, "shared_configs"), where("author", "==", currentUser.email));
-                const snap = await getDocs(q);
-                if (snap.empty) {
-                    list.innerHTML = `<div class="text-center py-8 text-slate-500 italic">${t.noMyConfigs}</div>`;
-                } else {
-                    list.innerHTML = '';
-                    snap.forEach(doc => {
-                        const data = doc.data();
-                        const statusColor = data.status === 'approved' ? 'text-green-400' : 'text-yellow-400';
-                        const statusText = data.status === 'approved' ? t.statusApproved : t.statusPending;
-                        const div = document.createElement('div');
-                        div.className = "glass p-4 flex justify-between items-center border border-white/5";
-                        div.innerHTML = `
+                try {
+                    const q = query(collection(db, "shared_configs"), where("author", "==", currentUser.email));
+                    const snap = await getDocs(q);
+                    if (snap.empty) {
+                        list.innerHTML = `<div class="text-center py-8 text-slate-500 italic">${t.noMyConfigs}</div>`;
+                    } else {
+                        list.innerHTML = '';
+                        snap.forEach(doc => {
+                            const data = doc.data();
+                            const statusColor = data.status === 'approved' ? 'text-green-400' : 'text-yellow-400';
+                            const statusText = data.status === 'approved' ? t.statusApproved : t.statusPending;
+                            const div = document.createElement('div');
+                            div.className = "glass p-4 flex justify-between items-center border border-white/5";
+                            div.innerHTML = `
                             <div>
                                 <div class="font-bold">${data.name || 'Untitled'}</div>
                                 <div class="text-xs ${statusColor} font-bold uppercase tracking-widest mt-1">${statusText}</div>
@@ -1085,49 +859,49 @@
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                             </button>
                         `;
-                        list.appendChild(div);
+                            list.appendChild(div);
+                        });
+                    }
+                } catch (e) { list.innerHTML = '<div class="text-red-400">Error loading configs.</div>'; }
+            };
+
+            window.closeMyConfigsModal = () => document.getElementById('my-configs-modal').classList.add('hidden');
+
+            window.deleteMyConfig = async (id) => {
+                const t = i18n[currentLang] || i18n.en;
+                if (!confirm(t.deleteConfirm)) return;
+                try {
+                    await deleteDoc(doc(db, "shared_configs", id));
+                    alert(t.deleteSuccess);
+                    openMyConfigsModal();
+                    setupDataFetching();
+                } catch (e) { alert(t.deleteError); }
+            };
+
+            function setupDataFetching() {
+                const q = query(collection(db, "shared_configs"), where("status", "==", "approved"));
+                onSnapshot(q, (snap) => {
+                    if (fetchTimeout) clearTimeout(fetchTimeout);
+                    allConfigs = [];
+                    snap.forEach(doc => {
+                        const d = doc.data();
+                        allConfigs.push({
+                            id: doc.id,
+                            ...d,
+                            data: d.config_json || d.data
+                        });
                     });
-                }
-            } catch (e) { list.innerHTML = '<div class="text-red-400">Error loading configs.</div>'; }
-        };
-
-        window.closeMyConfigsModal = () => document.getElementById('my-configs-modal').classList.add('hidden');
-
-        window.deleteMyConfig = async (id) => {
-            const t = i18n[currentLang] || i18n.en;
-            if (!confirm(t.deleteConfirm)) return;
-            try {
-                await deleteDoc(doc(db, "shared_configs", id));
-                alert(t.deleteSuccess);
-                openMyConfigsModal();
-                setupDataFetching();
-            } catch (e) { alert(t.deleteError); }
-        };
-
-        function setupDataFetching() {
-            const q = query(collection(db, "shared_configs"), where("status", "==", "approved"));
-            onSnapshot(q, (snap) => {
-                if (fetchTimeout) clearTimeout(fetchTimeout);
-                allConfigs = [];
-                snap.forEach(doc => {
-                    const d = doc.data();
-                    allConfigs.push({
-                        id: doc.id,
-                        ...d,
-                        data: d.config_json || d.data
-                    });
+                    dataLoaded = true;
+                    renderConfigs();
+                }, (err) => {
+                    log("SDK Error: " + err.message);
+                    if (!dataLoaded) fetchConfigsREST();
                 });
-                dataLoaded = true;
-                renderConfigs();
-            }, (err) => {
-                log("SDK Error: " + err.message);
-                if (!dataLoaded) fetchConfigsREST();
-            });
-            fetchTimeout = setTimeout(() => { if (!dataLoaded) fetchConfigsREST(); }, 5000);
-        }
+                fetchTimeout = setTimeout(() => { if (!dataLoaded) fetchConfigsREST(); }, 5000);
+            }
 
-        setupDataFetching();
-        updateUI();
+            setupDataFetching();
+            updateUI();
         } catch (e) { log("Init Error: " + e.message); }
     </script>
 </body>
