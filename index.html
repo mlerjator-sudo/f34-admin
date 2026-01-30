@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 
 <head>
     <meta charset="UTF-8">
@@ -15,6 +15,382 @@
             background: #0f172a;
             color: #f8fafc;
             overflow-x: hidden;
+        }
+
+        #config-list {
+            background-size: cover;
+            background-attachment: fixed;
+            background-position: center;
+            background-repeat: no-repeat;
+            transition: background-image 0.5s ease-in-out;
+        }
+
+        :root[data-theme="light"] {
+            --bg-general: url('https://i.imgur.com/UVF1O71.png');
+            --bg-convenience: url('https://i.imgur.com/egPJEIy.png');
+            --bg-food: url('https://i.imgur.com/bshbJZN.png');
+            --bg-worldgen: url('https://i.imgur.com/FKnjOph.png');
+            --bg-adventure: url('Category%20Theme/Adventure/white.png');
+            --bg-transportation: url('https://i.imgur.com/MwC3J8v.png');
+            --bg-horror: url('https://i.imgur.com/1p6lwci.png');
+            --bg-decoration: url('https://i.imgur.com/VsOr7yM.png');
+            --bg-economy: url('https://i.imgur.com/aXJFQOK.png');
+            --bg-gamemechanics: url('https://i.imgur.com/9qlwxkW.png');
+            --bg-library: url('https://i.imgur.com/9axqQU9.png');
+            --bg-magic: url('https://i.imgur.com/LlIwrdE.png');
+            --bg-management: url('https://i.imgur.com/aFQkvpT.png');
+            --bg-minigame: url('https://i.imgur.com/46rmCIx.png');
+            --bg-equipment: url('https://i.imgur.com/m5J4zkN.png');
+            --bg-mobs: url('https://i.imgur.com/CXN3MnX.png');
+            --bg-optimization: url('https://i.imgur.com/gryd6LR.png');
+            --bg-social: url('https://i.imgur.com/d8CggAE.png');
+            --bg-storage: url('https://i.imgur.com/GoJD0yA.png');
+            --bg-technology: url('https://i.imgur.com/VGYKLCU.png');
+        }
+
+        :root[data-theme="dark"] {
+            --bg-general: url('https://i.imgur.com/bdomv6b.png');
+            --bg-convenience: url('https://i.imgur.com/tkTVHx6.png');
+            --bg-food: url('https://i.imgur.com/4TnRt4u.png');
+            --bg-worldgen: url('https://i.imgur.com/bV0zPVK.png');
+            --bg-adventure: url('https://i.imgur.com/vQseaHR.png');
+            --bg-transportation: url('https://i.imgur.com/2dE1gIf.png');
+            --bg-horror: url('https://i.imgur.com/XQ6SARM.png');
+            --bg-decoration: url('https://i.imgur.com/Q4hcllF.png');
+            --bg-economy: url('https://i.imgur.com/BJShHn0.png');
+            --bg-gamemechanics: url('https://i.imgur.com/VqxjZYc.png');
+            --bg-library: url('https://i.imgur.com/LonhnG6.png');
+            --bg-magic: url('https://i.imgur.com/bhmccZ4.png');
+            --bg-management: url('https://i.imgur.com/v5Ss1vN.png');
+            --bg-minigame: url('https://i.imgur.com/RtvJW8Q.png');
+            --bg-equipment: url('https://i.imgur.com/8xMC7DI.png');
+            --bg-mobs: url('https://i.imgur.com/HkKstM6.png');
+            --bg-optimization: url('https://i.imgur.com/gVvH3xN.png');
+            --bg-social: url('https://i.imgur.com/xbaQlSW.png');
+            --bg-storage: url('https://i.imgur.com/AjoAcKJ.png');
+            --bg-technology: url('https://i.imgur.com/mOn0jfR.png');
+        }
+
+        .card-with-bg,
+        .card-with-bg-convenience,
+        .card-with-bg-food,
+        .card-with-bg-worldgen,
+        .card-with-bg-adventure,
+        .card-with-bg-transportation,
+        .card-with-bg-horror,
+        .card-with-bg-decoration,
+        .card-with-bg-economy,
+        .card-with-bg-gamemechanics,
+        .card-with-bg-library,
+        .card-with-bg-magic,
+        .card-with-bg-management,
+        .card-with-bg-minigame,
+        .card-with-bg-equipment,
+        .card-with-bg-mobs,
+        .card-with-bg-optimization,
+        .card-with-bg-social,
+        .card-with-bg-storage,
+        .card-with-bg-technology {
+            position: relative;
+        }
+
+        .card-with-bg::before,
+        .card-with-bg-convenience::before,
+        .card-with-bg-food::before,
+        .card-with-bg-worldgen::before,
+        .card-with-bg-adventure::before,
+        .card-with-bg-transportation::before,
+        .card-with-bg-horror::before,
+        .card-with-bg-decoration::before,
+        .card-with-bg-economy::before,
+        .card-with-bg-gamemechanics::before,
+        .card-with-bg-library::before,
+        .card-with-bg-magic::before,
+        .card-with-bg-management::before,
+        .card-with-bg-minigame::before,
+        .card-with-bg-equipment::before,
+        .card-with-bg-mobs::before,
+        .card-with-bg-optimization::before,
+        .card-with-bg-social::before,
+        .card-with-bg-storage::before,
+        .card-with-bg-technology::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-size: cover;
+            background-position: top center;
+            background-repeat: no-repeat;
+            background-attachment: scroll;
+            border-radius: 24px;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .card-with-bg::before {
+            background-image: 
+                linear-gradient(to bottom, 
+                    rgba(15, 23, 42, 0) 0%, 
+                    rgba(15, 23, 42, 0.3) 25%,
+                    rgba(15, 23, 42, 0.8) 50%,
+                    rgba(15, 23, 42, 0.98) 70%,
+                    rgba(15, 23, 42, 1) 100%
+                ),
+                var(--bg-general);
+        }
+        
+        .card-with-bg-convenience::before {
+            background-image: 
+                linear-gradient(to bottom, 
+                    rgba(15, 23, 42, 0) 0%, 
+                    rgba(15, 23, 42, 0.3) 25%,
+                    rgba(15, 23, 42, 0.8) 50%,
+                    rgba(15, 23, 42, 0.98) 70%,
+                    rgba(15, 23, 42, 1) 100%
+                ),
+                var(--bg-convenience);
+        }
+        
+        .card-with-bg-food::before {
+            background-image: 
+                linear-gradient(to bottom, 
+                    rgba(15, 23, 42, 0) 0%, 
+                    rgba(15, 23, 42, 0.3) 25%,
+                    rgba(15, 23, 42, 0.8) 50%,
+                    rgba(15, 23, 42, 0.98) 70%,
+                    rgba(15, 23, 42, 1) 100%
+                ),
+                var(--bg-food);
+        }
+        
+        .card-with-bg-worldgen::before {
+            background-image: 
+                linear-gradient(to bottom, 
+                    rgba(15, 23, 42, 0) 0%, 
+                    rgba(15, 23, 42, 0.3) 25%,
+                    rgba(15, 23, 42, 0.8) 50%,
+                    rgba(15, 23, 42, 0.98) 70%,
+                    rgba(15, 23, 42, 1) 100%
+                ),
+                var(--bg-worldgen);
+        }
+        
+        .card-with-bg-adventure::before {
+            background-image: 
+                linear-gradient(to bottom, 
+                    rgba(15, 23, 42, 0) 0%, 
+                    rgba(15, 23, 42, 0.3) 25%,
+                    rgba(15, 23, 42, 0.8) 50%,
+                    rgba(15, 23, 42, 0.98) 70%,
+                    rgba(15, 23, 42, 1) 100%
+                ),
+                var(--bg-adventure);
+        }
+
+        .card-with-bg-transportation::before {
+            background-image: 
+                linear-gradient(to bottom, 
+                    rgba(15, 23, 42, 0) 0%, 
+                    rgba(15, 23, 42, 0.3) 25%,
+                    rgba(15, 23, 42, 0.8) 50%,
+                    rgba(15, 23, 42, 0.98) 70%,
+                    rgba(15, 23, 42, 1) 100%
+                ),
+                var(--bg-transportation);
+        }
+
+        .card-with-bg-horror::before {
+            background-image: 
+                linear-gradient(to bottom, 
+                    rgba(15, 23, 42, 0) 0%, 
+                    rgba(15, 23, 42, 0.3) 25%,
+                    rgba(15, 23, 42, 0.8) 50%,
+                    rgba(15, 23, 42, 0.98) 70%,
+                    rgba(15, 23, 42, 1) 100%
+                ),
+                var(--bg-horror);
+        }
+
+        .card-with-bg-decoration::before {
+            background-image: 
+                linear-gradient(to bottom, 
+                    rgba(15, 23, 42, 0) 0%, 
+                    rgba(15, 23, 42, 0.3) 25%,
+                    rgba(15, 23, 42, 0.8) 50%,
+                    rgba(15, 23, 42, 0.98) 70%,
+                    rgba(15, 23, 42, 1) 100%
+                ),
+                var(--bg-decoration);
+        }
+
+        .card-with-bg-economy::before {
+            background-image: 
+                linear-gradient(to bottom, 
+                    rgba(15, 23, 42, 0) 0%, 
+                    rgba(15, 23, 42, 0.3) 25%,
+                    rgba(15, 23, 42, 0.8) 50%,
+                    rgba(15, 23, 42, 0.98) 70%,
+                    rgba(15, 23, 42, 1) 100%
+                ),
+                var(--bg-economy);
+        }
+
+        .card-with-bg-gamemechanics::before {
+            background-image: 
+                linear-gradient(to bottom, 
+                    rgba(15, 23, 42, 0) 0%, 
+                    rgba(15, 23, 42, 0.3) 25%,
+                    rgba(15, 23, 42, 0.8) 50%,
+                    rgba(15, 23, 42, 0.98) 70%,
+                    rgba(15, 23, 42, 1) 100%
+                ),
+                var(--bg-gamemechanics);
+        }
+
+        .card-with-bg-library::before {
+            background-image: 
+                linear-gradient(to bottom, 
+                    rgba(15, 23, 42, 0) 0%, 
+                    rgba(15, 23, 42, 0.3) 25%,
+                    rgba(15, 23, 42, 0.8) 50%,
+                    rgba(15, 23, 42, 0.98) 70%,
+                    rgba(15, 23, 42, 1) 100%
+                ),
+                var(--bg-library);
+        }
+
+        .card-with-bg-magic::before {
+            background-image: 
+                linear-gradient(to bottom, 
+                    rgba(15, 23, 42, 0) 0%, 
+                    rgba(15, 23, 42, 0.3) 25%,
+                    rgba(15, 23, 42, 0.8) 50%,
+                    rgba(15, 23, 42, 0.98) 70%,
+                    rgba(15, 23, 42, 1) 100%
+                ),
+                var(--bg-magic);
+        }
+
+        .card-with-bg-management::before {
+            background-image: 
+                linear-gradient(to bottom, 
+                    rgba(15, 23, 42, 0) 0%, 
+                    rgba(15, 23, 42, 0.3) 25%,
+                    rgba(15, 23, 42, 0.8) 50%,
+                    rgba(15, 23, 42, 0.98) 70%,
+                    rgba(15, 23, 42, 1) 100%
+                ),
+                var(--bg-management);
+        }
+
+        .card-with-bg-minigame::before {
+            background-image: 
+                linear-gradient(to bottom, 
+                    rgba(15, 23, 42, 0) 0%, 
+                    rgba(15, 23, 42, 0.3) 25%,
+                    rgba(15, 23, 42, 0.8) 50%,
+                    rgba(15, 23, 42, 0.98) 70%,
+                    rgba(15, 23, 42, 1) 100%
+                ),
+                var(--bg-minigame);
+        }
+
+        .card-with-bg-equipment::before {
+            background-image: 
+                linear-gradient(to bottom, 
+                    rgba(15, 23, 42, 0) 0%, 
+                    rgba(15, 23, 42, 0.3) 25%,
+                    rgba(15, 23, 42, 0.8) 50%,
+                    rgba(15, 23, 42, 0.98) 70%,
+                    rgba(15, 23, 42, 1) 100%
+                ),
+                var(--bg-equipment);
+        }
+
+        .card-with-bg-mobs::before {
+            background-image: 
+                linear-gradient(to bottom, 
+                    rgba(15, 23, 42, 0) 0%, 
+                    rgba(15, 23, 42, 0.3) 25%,
+                    rgba(15, 23, 42, 0.8) 50%,
+                    rgba(15, 23, 42, 0.98) 70%,
+                    rgba(15, 23, 42, 1) 100%
+                ),
+                var(--bg-mobs);
+        }
+
+        .card-with-bg-optimization::before {
+            background-image: 
+                linear-gradient(to bottom, 
+                    rgba(15, 23, 42, 0) 0%, 
+                    rgba(15, 23, 42, 0.3) 25%,
+                    rgba(15, 23, 42, 0.8) 50%,
+                    rgba(15, 23, 42, 0.98) 70%,
+                    rgba(15, 23, 42, 1) 100%
+                ),
+                var(--bg-optimization);
+        }
+
+        .card-with-bg-social::before {
+            background-image: 
+                linear-gradient(to bottom, 
+                    rgba(15, 23, 42, 0) 0%, 
+                    rgba(15, 23, 42, 0.3) 25%,
+                    rgba(15, 23, 42, 0.8) 50%,
+                    rgba(15, 23, 42, 0.98) 70%,
+                    rgba(15, 23, 42, 1) 100%
+                ),
+                var(--bg-social);
+        }
+
+        .card-with-bg-storage::before {
+            background-image: 
+                linear-gradient(to bottom, 
+                    rgba(15, 23, 42, 0) 0%, 
+                    rgba(15, 23, 42, 0.3) 25%,
+                    rgba(15, 23, 42, 0.8) 50%,
+                    rgba(15, 23, 42, 0.98) 70%,
+                    rgba(15, 23, 42, 1) 100%
+                ),
+                var(--bg-storage);
+        }
+
+        .card-with-bg-technology::before {
+            background-image: 
+                linear-gradient(to bottom, 
+                    rgba(15, 23, 42, 0) 0%, 
+                    rgba(15, 23, 42, 0.3) 25%,
+                    rgba(15, 23, 42, 0.8) 50%,
+                    rgba(15, 23, 42, 0.98) 70%,
+                    rgba(15, 23, 42, 1) 100%
+                ),
+                var(--bg-technology);
+        }
+
+        .card-with-bg > *,
+        .card-with-bg-minigame > *,
+        .card-with-bg-convenience > *,
+        .card-with-bg-food > *,
+        .card-with-bg-worldgen > *,
+        .card-with-bg-adventure > *,
+        .card-with-bg-transportation > *,
+        .card-with-bg-horror > *,
+        .card-with-bg-decoration > *,
+        .card-with-bg-economy > *,
+        .card-with-bg-gamemechanics > *,
+        .card-with-bg-library > *,
+        .card-with-bg-magic > *,
+        .card-with-bg-management > *,
+        .card-with-bg-equipment > *,
+        .card-with-bg-mobs > *,
+        .card-with-bg-optimization > *,
+        .card-with-bg-social > *,
+        .card-with-bg-storage > *,
+        .card-with-bg-technology > * {
+            position: relative;
+            z-index: 1;
         }
 
         .glass {
@@ -69,6 +445,156 @@
 
         .animate-fade-in {
             animation: fadeIn 0.6s ease-out forwards;
+        }
+
+        .download-tooltip-container {
+            position: relative;
+        }
+
+        .download-tooltip-container:hover::after {
+            content: "제안 없는 모드 및 로그인 없이 다운로드";
+            position: absolute;
+            bottom: -50px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.9);
+            color: #fff;
+            padding: 10px 14px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 500;
+            white-space: nowrap;
+            pointer-events: none;
+            opacity: 0;
+            animation: fadeInTooltip 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+            z-index: 100;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+            letter-spacing: -0.01em;
+        }
+
+        .download-tooltip-container:hover::before {
+            content: '';
+            position: absolute;
+            bottom: -14px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 7px;
+            border-style: solid;
+            border-color: transparent transparent rgba(0, 0, 0, 0.9) transparent;
+            opacity: 0;
+            animation: fadeInTooltip 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+            z-index: 100;
+        }
+
+        @keyframes fadeInTooltip {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(-5px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+
+        /* Theme switch styles (Minecraft switch by csozi, adapted) */
+        .theme-switch {
+            font-size: 17px;
+            position: relative;
+            display: inline-block;
+            width: 4em;
+            height: 2em;
+        }
+
+        .theme-switch input {
+            opacity: 1;
+            width: 0;
+            height: 0;
+        }
+
+        .theme-switch .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 4px;
+        }
+
+        .theme-switch .off,
+        .theme-switch .on {
+            position: absolute;
+            height: 2em;
+            width: 2em;
+            background-color: white;
+            transition: .4s;
+            image-rendering: pixelated;
+            top: 0;
+            left: 0;
+        }
+
+        .theme-switch .off { opacity: 1; }
+        .theme-switch .on { opacity: 0; }
+
+        .theme-switch input:checked + .slider { background-color: #ccc; }
+        .theme-switch input:focus + .slider { box-shadow: 0 0 1px #ccc; }
+        .theme-switch input:checked ~ .off { transform: translateX(2em); }
+        .theme-switch input:checked ~ .on { transform: translateX(2em); opacity: 1; }
+
+        /* Settings switch styles */
+        .settings-switch {
+            font-size: 17px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 30px;
+            width: 60px;
+            height: 26px;
+        }
+
+        .settings-switch .toggle {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .settings-switch .slider {
+            image-rendering: pixelated;
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAlgAAAEECAYAAAD0wkrNAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsEAAA7BAbiRa+0AAAGHaVRYdFhNTDpjb20uYWRvYmUueG1wAAAAAAA8P3hwYWNrZXQgYmVnaW49J++7vycgaWQ9J1c1TTBNcENlaGlIenJlU3pOVGN6a2M5ZCc/Pg0KPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyI+PHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj48cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0idXVpZDpmYWY1YmRkNS1iYTNkLTExZGEtYWQzMS1kMzNkNzUxODJmMWIiIHhtbG5zOnRpZmY9Imh0dHA6Ly9ucy5hZG9iZS5jb20vdGlmZi8xLjAvIj48dGlmZjpPcmllbnRhdGlvbj4xPC90aWZmOk9yaWVudGF0aW9uPjwvcmRmOkRlc2NyaXB0aW9uPjwvcmRmOlJERj48L3g6eG1wbWV0YT4NCjw/eHBhY2tldCBlbmQ9J3cnPz4slJgLAAAFd0lEQVR4Xu3YMWpbQRhG0ZGdwqAVJqQzRsYIL8aoSUgppKUJvIaYl346+91Csc+Bab52msu/GWMsAwCAzM08AACwjsACAIgJLACAmMACAIgJLACAmMACAIgJLACAmMACAIgJLACAmMACAIgJLACAmMACAIgJLACAmMACAIgJLACAmMACAIgJLACAmMACAIgJLACA2GaMsczjGsfTeZ4AAK7azx/f52kVFywAgJjAAgCICSwAgJjAAgCICSwAgJjAAgCICSwAgJjAAgCICSwAgJjAAgCICSwAgJjAAgCICSwAgJjAAgCICSwAgJjAAgCICSwAgJjAAgCICSwAgJjAAgCICSwAgJjAAgCICSwAgJjAAgCICSwAgJjAAgCICSwAgJjAAgCICSwAgJjAAgCICSwAgJjAAgCICSwAgJjAAgCICSwAgJjAAgCICSwAgNhmjLHM4xrH03mersrl8jpPAHzA4fAyT7zDfv88T5/adns3T1fl6XE3T6u4YAEAxAQWAEBMYAEAxAQWAEBMYAEAxAQWAEBMYAEAxAQWAEBMYAEAxAQWAEBMYAEAxAQWAEBMYAEAxAQWAEBMYAEAxAQWAEBMYAEAxAQWAEBMYAEAxDZjjGUe1ziezvN0VS6X13kC+BIOh5d5WmW/f54n3uGr/cd2ezdPq9zefpunVXYP9/O0igsWAEBMYAEAxAQWAEBMYAEAxAQWAEBMYAEAxAQWAEBMYAEAxAQWAEBMYAEAxAQWAEBMYAEAxAQWAEBMYAEAxAQWAEBMYAEAxAQWAEBMYAEAxAQWAEBMYAEAxAQWAEBMYAEAxAQWAEBMYAEAxAQWAEBMYAEAxAQWAEBMYAEAxAQWAEBMYAEAxAQWAEBMYAEAxAQWAEBMYAEAxAQWAEBMYAEAxAQWAEBMYAEA/523t7/pqwksAICYwAIAiAksAICYwAIAiAksAICYwAIAiAksAICYwAIAiAksAICYwAIAiAksAICYwAIAiAksAICYwAIAiAksAICYwAIAiAksAICYwAIAiAksAICYwAIAiAksAICYwAIAiAksAICYwAIAiAksAICYwAIAiAksAICYwAIAiAksAICYwAIAiAksAICYwAIAiAksAICYwAIAiAksAICYwAIAiAksAICYwAIAiAksAICYwAIAiAksAICYwAIAiAksAICYwAIAiAksAICYwAIAiAksAICYwAIAiAksAICYwAIAiAksAICYwAIAiAksAICYwAIAiAksAIDYZoyxzOMax9N5nq7K5fI6TwB8wOHwMk+8w37/PE+f2nZ7N09X5elxN0+ruGABAMQEFgBATGABAMQEFgBATGABAMQEFgBATGABAMQEFgBATGABAMQEFgBATGABAMQEFgBATGABAMQEFgBATGABAMQEFgBATGABAMQEFgBATGABAMQ2Y4xlHtf4/evPPAEApJabzTytsnu4n6dVXLAAAGICCwAgJrAAAGICCwAgJrAAAGICCwAgJrAAAGICCwAgJrAAAGICCwAgJrAAAGICCwAgJrAAAGICCwAgJrAAAGICCwAgJrAAAGICCwAgJrAAAGICCwAgJrAAAGICCwAgJrAAAGICCwAgJrAAAGICCwAgJrAAAGICCwAgJrAAAGICCwAgJrAAAGICCwAgJrAAAGICCwAgJrAAAGICCwAgJrAAAGICCwAgJrAAAGKbMcYyjwAAfJwLFgBATGABAMQEFgBATGABAMQEFgBATGABAMQEFgBATGABAMQEFgBATGABAMQEFgBATGABAMQEFgBATGABAMQEFgBATGABAMQEFgBATGABAMQEFgBA7B+FCmkzoT9HAAAAAABJRU5ErkJggg==);
+            background-size: 100% 100%;
+        }
+
+        .settings-switch .slider:before {
+            box-sizing: border-box;
+            position: absolute;
+            content: "";
+            height: 32px;
+            width: 28px;
+            bottom: 0px;
+            background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAARgAAAFACAYAAABnU2MWAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsEAAA7BAbiRa+0AAAGHaVRYdFhNTDpjb20uYWRvYmUueG1wAAAAAAA8P3hwYWNrZXQgYmVnaW49J++7vycgaWQ9J1c1TTBNcENlaGlIenJlU3pOVGN6a2M5ZCc/Pg0KPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyI+PHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj48cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0idXVpZDpmYWY1YmRkNS1iYTNkLTExZGEtYWQzMS1kMzNkNzUxODJmMWIiIHhtbG5zOnRpZmY9Imh0dHA6Ly9ucy5hZG9iZS5jb20vdGlmZi8xLjAvIj48dGlmZjpPcmllbnRhdGlvbj4xPC90aWZmOk9yaWVudGF0aW9uPjwvcmRmOkRlc2NyaXB0aW9uPjwvcmRmOlJERj48L3g6eG1wbWV0YT4NCjw/eHBhY2tldCBlbmQ9J3cnPz4slJgLAAAEZElEQVR4Xu3cMWojURBF0WpHQpYXOxivYjBerGWhrCf/aesOFpwTvgVcKqptZvYBCLysA8CjCAyQERggIzBARmCAjMAAGYEBMgIDZAQGyAgMkBEYICMwQEZggIzAABmBATICA2QEBsgIDJARGCCzPfon7/V2XyfgSVzOp3U6xAUDZAQGyAgMkBEYICMwQEZggIzAABmBATICA2QEBsgIDJARGCAjMEBGYICMwAAZgQEyAgNkBAbICAyQERggIzBARmCAjMAAGYEBMgIDZAQGyAgMkBEYICMwQEZggIzAABmBATICA2QEBsgIDJARGCAjMEBGYICMwACZbWb2dTzieruv06/y/f2zTvDfvL29rtOvcjmf1ukQFwyQERggIzBARmCAjMAAGYEBMgIDZAQGyAgMkBEYICMwQEZggIzAABmBATICA2QEBsgIDJARGCAjMEBGYICMwAAZgQEyAgNkBAbICAyQERggIzBARmCAjMAAGYEBMgIDZAQGyAgMkBEYICMwQEZggIzAABmBATICA2QEBsgIDJARGCAjMEBGYICMwAAZgQEyAgNkBAbICAyQERggIzBARmCAjMAAGYEBMgIDZAQGyAgMkBEYICMwQEZggIzAABmBATICA2QEBsgIDJARGCAjMEBGYICMwAAZgQEyAgNkBAbICAyQERggIzBARmCAjMAAGYEBMgIDZAQGyAgMkBEYICMwQEZggIzAABmBATICA2QEBsgIDJARGCAjMEBGYICMwAAZgQEyAgNkBAbICAyQERggIzBARmCAjMAAGYEBMgIDZAQGyAgMkBEYICMwQEZggIzAABmBATICA2QEBsgIDJARGCAjMEBGYICMwAAZgQEyAgNkBAbICAyQERggIzBARmCAjMAAGYEBMgIDZAQGyAgMkBEYICMwQEZggIzAABmBATICA2QEBsgIDJARGCAjMEBGYICMwAAZgQEyAgNkBAbICAyQERggIzBARmCAjMAAGYEBMgIDZAQGyAgMkBEYICMwQEZggIzAABmBATICA2S2mdnX8Yjr7b5OwJO4nE/rdIgLBsgIDJARGCAjMEBGYICMwAAZgQEyAgNkBAbICAyQERggIzBARmCAjMAAGYEBMgIDZAQGyAgMkBEYICMwQEZggIzAABmBATICA2QEBsgIDJARGCAjMEBGYICMwAAZgQEyAgNkBAbICAyQERggIzBARmCAjMAAGYEBMtvM7Ot4xN/Pr3UCnsTH+591OsQFA2QEBsgIDJARGCAjMEBGYICMwAAZgQEyAgNkBAbICAyQERggIzBARmCAjMAAGYEBMgIDZAQGyAgMkBEYICMwQEZggIzAABmBATICA2QEBsgIDJARGCAjMEBGYICMwAAZgQEyAgNkBAbICAyQERggIzBARmCAjMAAmW1m9nUEeAQXDJARGCAjMEBGYICMwAAZgQEyAgNkBAbICAyQERggIzBARmCAjMAAGYEBMgIDZAQGyAgMkBEYICMwQOYfxHAXdb5V9+0AAAAASUVORK5CYII=);
+            background-size: 28px 32px;
+        }
+
+        .settings-switch .toggle:checked + .slider {
+            background: url(data:image/png;base64,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);
+            background-size: 100% 100%;
+        }
+
+        .settings-switch .toggle:checked + .slider:before {
+            transform: translateX(32px);
         }
     </style>
 </head>
@@ -127,6 +653,15 @@
                         class="px-3 py-2 rounded-lg transition-all hover:bg-white/5">RU</button>
                 </div>
 
+                <div class="glass px-3 py-2 rounded-lg">
+                    <label class="theme-switch">
+                        <input id="theme-toggle-checkbox" type="checkbox" aria-label="Toggle theme" onchange="toggleThemeMode()" />
+                        <span class="slider"></span>
+                        <img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAAQABADASIAAhEBAxEB/8QAFgABAQEAAAAAAAAAAAAAAAAAAAIG/8QAIxAAAgIABQQDAAAAAAAAAAAAAQMCBAAREiExBUFRcROBsf/EABQBAQAAAAAAAAAAAAAAAAAAAAX/xAAWEQADAAAAAAAAAAAAAAAAAAAAEiL/2gAMAwEAAhEDEQA/AMBTp03dNglMVuttjqnKQ2UPOfntkOThbqVVUJ12BKnogZQZpy+Ucc8knwePWJrWqyqEHVmrTahEBqpbBoAH1n635wt3a9mjN1p8X2pw0qVEbKB/CO/c4OphSVP/2Q==" class="off" />
+                        <img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAAQABADASIAAhEBAxEB/8QAFwAAAwEAAAAAAAAAAAAAAAAAAQIEBf/EACMQAAEDAwQDAQEAAAAAAAAAAAQBAgUDESEAEjFBBlFhMkL/xAAUAQEAAAAAAAAAAAAAAAAAAAAF/8QAGBEAAwEBAAAAAAAAAAAAAAAAABIiMUH/2gAMAwEAAhEDEQA/AM+Bg4mS8coRccMOdNG01qVyH/kRvHPKKmMdr8uujPwUTG+NkRpw1AKWCbvHKa2zTGphc9u9p0q+rLqeMl4kSCGkYgtoE0HTahIz3bWGNanPrdyqWzn7p5ibh5CArnyZNMyVLpK0QSkt2BNXtVX+7ol1wuLJiyaHt+6Kyp//2Q==" class="on" />
+                    </label>
+                </div>
+
                 <div class="flex items-center gap-4">
                     <!-- Auth Button / Profile -->
                     <div id="user-profile" class="hidden flex items-center gap-4">
@@ -159,6 +694,21 @@
                         class="glass px-8 py-3 font-bold hover:bg-white/5 transition-all hidden text-sm">
                         My Configs
                     </button>
+
+                    <!-- Friends Button -->
+                    <button id="friends-btn" onclick="openFriendsModal()"
+                        class="glass px-8 py-3 font-bold hover:bg-white/5 transition-all hidden text-sm flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                        </svg>
+                        <span id="t-friends">Friends</span>
+                    </button>
+
+                    <!-- Download Mod Button -->
+                    <a href="download.html" id="t-nav-download"
+                        class="glass px-8 py-3 font-bold hover:bg-white/5 transition-all text-sm download-tooltip-container">
+                        Download Mod
+                    </a>
 
                     <button id="t-support" onclick="openSupportModal()"
                         class="glass px-8 py-3 font-bold hover:bg-white/5 transition-all text-sm">
@@ -243,6 +793,30 @@
         </div>
     </div>
 
+    <!-- Settings Modal -->
+    <div id="settings-modal" class="fixed inset-0 z-50 flex items-center justify-center p-6 hidden">
+        <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" onclick="closeSettingsModal()"></div>
+        <div class="glass max-w-md w-full relative z-10 p-8 animate-fade-in">
+            <div class="flex justify-between items-start mb-8">
+                <h2 class="text-3xl font-black tracking-tighter">Settings</h2>
+                <button onclick="closeSettingsModal()" class="text-slate-400 hover:text-white transition-colors">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            <div class="space-y-6">
+                <div class="flex items-center justify-between">
+                    <span class="text-lg font-semibold">Category Backgrounds</span>
+                    <label class="settings-switch">
+                        <input id="bg-toggle-checkbox" class="toggle" type="checkbox" checked onchange="toggleBackgrounds()" />
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Support Modal -->
     <div id="support-modal" class="fixed inset-0 z-50 flex items-center justify-center p-6 hidden">
         <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" onclick="closeSupportModal()"></div>
@@ -259,6 +833,67 @@
                 <button onclick="submitTicket()"
                     class="btn-download px-8 py-3 rounded-xl font-bold text-white transition-all"
                     id="t-support-submit">Submit Ticket</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Friends Modal -->
+    <div id="friends-modal" class="fixed inset-0 z-[200] hidden flex items-center justify-center p-6">
+        <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" onclick="closeFriendsModal()"></div>
+        <div class="glass relative max-w-2xl w-full max-h-[90vh] overflow-auto p-8">
+            <div class="flex justify-between items-start mb-8">
+                <div>
+                    <h2 class="text-3xl font-black tracking-tighter" id="t-friends-title">Friends</h2>
+                    <p class="text-slate-500 text-sm mt-2" id="t-friends-subtitle">Manage your friends</p>
+                </div>
+                <button onclick="closeFriendsModal()"
+                    class="text-slate-400 hover:text-white transition-colors">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Tabs -->
+            <div class="flex gap-2 mb-6 border-b border-white/10">
+                <button onclick="switchFriendsTab('friends')" id="friends-tab-friends"
+                    class="px-6 py-3 font-bold border-b-2 border-blue-500 text-blue-400">
+                    Friends
+                </button>
+                <button onclick="switchFriendsTab('requests')" id="friends-tab-requests"
+                    class="px-6 py-3 font-bold border-b-2 border-transparent text-slate-500 hover:text-white">
+                    Requests <span id="requests-count" class="ml-2 px-2 py-0.5 bg-red-500 rounded-full text-xs hidden">0</span>
+                </button>
+                <button onclick="switchFriendsTab('find')" id="friends-tab-find"
+                    class="px-6 py-3 font-bold border-b-2 border-transparent text-slate-500 hover:text-white">
+                    Find Users
+                </button>
+            </div>
+
+            <!-- Friends Tab -->
+            <div id="friends-content-friends">
+                <div id="friends-list-container" class="space-y-3">
+                    <!-- Friends will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Requests Tab -->
+            <div id="friends-content-requests" class="hidden">
+                <div id="requests-list-container" class="space-y-3">
+                    <!-- Requests will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Find Users Tab -->
+            <div id="friends-content-find" class="hidden">
+                <div class="mb-4">
+                    <input type="text" id="user-search-input" placeholder="Search by email or Minecraft name..."
+                        class="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-2 text-white outline-none focus:border-blue-500 transition-colors">
+                </div>
+                <div id="users-list-container" class="space-y-3 max-h-96 overflow-y-auto">
+                    <!-- Users will be loaded here -->
+                </div>
             </div>
         </div>
     </div>
@@ -353,6 +988,7 @@
                 raw: "Raw Configuration Data",
                 close: "Close",
                 support: "Support",
+                navDownload: "Download Mod",
                 supportTitle: "Customer Center",
                 supportDesc: "Have a problem or suggestion? Send us a message.",
                 supportSuccess: "Ticket submitted successfully!",
@@ -402,6 +1038,7 @@
                 raw: "원본 데이터",
                 close: "닫기",
                 support: "고객 센터",
+                navDownload: "모드 다운로드",
                 supportTitle: "고객 센터",
                 supportDesc: "문제나 제안 사항이 있으신가요? 메시지를 보내주세요.",
                 supportSuccess: "문의가 성공적으로 접수되었습니다!",
@@ -451,6 +1088,7 @@
                 raw: "生データ",
                 close: "閉じる",
                 support: "カスタマーセンター",
+                navDownload: "MODをダウンロード",
                 supportTitle: "カスタマーセンター",
                 supportDesc: "問題や提案がありますか？メッセージを送ってください。",
                 supportSuccess: "お問い合わせが正常に受け付けられました！",
@@ -500,6 +1138,7 @@
                 raw: "原始数据",
                 close: "关闭",
                 support: "客服中心",
+                navDownload: "下载模组",
                 supportTitle: "客服中心",
                 supportDesc: "有问题或建议吗？请给我们留言。",
                 supportSuccess: "工单提交成功！",
@@ -549,6 +1188,7 @@
                 raw: "Datos sin procesar",
                 close: "Cerrar",
                 support: "Soporte",
+                navDownload: "Descargar Mod",
                 supportTitle: "Centro de Atención",
                 supportDesc: "¿Tienes un problema o sugerencia? Envíanos un mensaje.",
                 supportSuccess: "¡Ticket enviado con éxito!",
@@ -598,6 +1238,7 @@
                 raw: "Données brutes",
                 close: "Fermer",
                 support: "Support",
+                navDownload: "Télécharger le Mod",
                 supportTitle: "Centre d'Assistance",
                 supportDesc: "Un problème ou une suggestion ? Envoyez-nous un message.",
                 supportSuccess: "Ticket envoyé avec succès !",
@@ -647,6 +1288,7 @@
                 raw: "Rohdaten",
                 close: "Schließen",
                 support: "Support",
+                navDownload: "Mod Herunterladen",
                 supportTitle: "Kundencenter",
                 supportDesc: "Hast du ein Problem oder einen Vorschlag? Sende uns eine Nachricht.",
                 supportSuccess: "Ticket erfolgreich gesendet!",
@@ -696,6 +1338,7 @@
                 raw: "Исходные данные",
                 close: "Закрыть",
                 support: "Поддержка",
+                navDownload: "Скачать Мод",
                 supportTitle: "Центр поддержки",
                 supportDesc: "Есть проблема или предложение? Отправьте нам сообщение.",
                 supportSuccess: "Тикет успешно отправлен!",
@@ -715,6 +1358,7 @@
                     General: "Обычный", Wood: "Дерево", Stone: "Камень", Coal: "Уголь", Copper: "Медь", Iron: "Железо", Gold: "Золото", Diamond: "Алмаз", Emerald: "Изумруд", Premium: "Премиум"
                 },
                 categories: {
+                    All: "Все", Adventure: "Приключения", Horror: "Хоррор", Decoration: "Декор", Economy: "Экономика", Equipment: "Снаряжение", Food: "Еда", "Game Mechanics": "Механики", Library: "Библиотека", Magic: "Магия", Management: "Управление", Minigame: "Мини-игра", Mobs: "Мобы", Optimization: "Оптимизация", Social: "Социальное", Storage: "Хранение", Technology: "Технологии", Transportation: "Транспорт", Utility: "Утилиты", "World Gen": "Ген. мира", General: "Общее", Convenience: "Удобство"
                 }
             },
             es: {
@@ -922,6 +1566,53 @@
         let allConfigs = [];
         let dataLoaded = false;
         let currentCategory = 'All';
+        let currentThemeMode = localStorage.getItem('f34_theme') || 'dark';
+
+        // Normalize category strings for consistent matching
+        const normalizeCategory = (cat) => (cat || '').toString().toLowerCase().replace(/\s+/g, '');
+        const normalizeCategoryAlias = (cat) => {
+            const base = normalizeCategory(cat);
+            if (base === 'mechanics') return 'gamemechanics';
+            return base;
+        };
+
+        function applyThemeMode() {
+            document.documentElement.dataset.theme = currentThemeMode;
+            localStorage.setItem('f34_theme', currentThemeMode);
+            const cb = document.getElementById('theme-toggle-checkbox');
+            if (cb) cb.checked = currentThemeMode === 'light';
+        }
+
+        window.toggleThemeMode = () => {
+            currentThemeMode = currentThemeMode === 'dark' ? 'light' : 'dark';
+            applyThemeMode();
+            renderConfigs();
+        };
+        
+        // Category theme mapping - associates categories with their theme images
+        const categoryThemeMap = {
+            'General': 'Category%20Theme/General/white.png',
+            'Convenience': 'Category%20Theme/Convenience/white.png',
+            'Food': 'Category%20Theme/Food/white.png',
+            'World Gen': 'Category%20Theme/Worldgen/white.png',
+            'Adventure': 'Category%20Theme/Adventure/white.png',
+            'Transportation': 'Category%20Theme/Transportation/white.png',
+            'Horror': 'Category%20Theme/Horror/white.png',
+            'Decoration': 'Category%20Theme/Decoration/white.png',
+            'Economy': 'Category%20Theme/Economy/white.png',
+            'Game Mechanics': 'Category%20Theme/Game%20Mechanics/white.png',
+            'Library': 'Category%20Theme/Library/white.png',
+            'Management': 'Category%20Theme/Management/white.png',
+            'Minigame': 'Category%20Theme/Minigame/white.png',
+            'Magic': 'Category%20Theme/Magic/white.png',
+            'Equipment': 'Category%20Theme/Equipment/white.png',
+            'Mobs': 'Category%20Theme/Mobs/white.png',
+            'Optimization': 'Category%20Theme/Optimization/white.png',
+            'Social': 'Category%20Theme/Social/white.png',
+            'Storage': 'Category%20Theme/Storage/white.png',
+            'Technology': 'Category%20Theme/Technology/white.png',
+            'All': 'Category%20Theme/General/white.png'
+        };
         let fetchTimeout = null;
 
         const app = initializeApp(firebaseConfig);
@@ -932,11 +1623,108 @@
         });
         provider = new GoogleAuthProvider();
 
-        onAuthStateChanged(auth, (user) => {
+        // Sync friend requests automatically
+        async function syncFriendRequests() {
+            if (!currentUser) return;
+            
+            try {
+                const myRef = doc(db, 'users', currentUser.email);
+                const myData = await getDoc(myRef);
+                
+                if (!myData.exists()) return;
+                
+                const sentRequests = myData.data()?.friend_requests_sent || [];
+                const myFriends = myData.data()?.friends || [];
+                const friendEmails = myFriends.map(f => f.email);
+                const receivedRequests = myData.data()?.friend_requests_received || [];
+                
+                let needsUpdate = false;
+                const updatedSentRequests = [];
+                const updatedReceivedRequests = [];
+                const newFriends = [...myFriends];
+                
+                // Check each sent request
+                for (const request of sentRequests) {
+                    const theirDoc = await getDoc(doc(db, 'users', request.to));
+                    if (theirDoc.exists()) {
+                        const theirFriends = theirDoc.data()?.friends || [];
+                        const acceptedByThem = theirFriends.find(f => f.email === currentUser.email);
+                        
+                        if (acceptedByThem) {
+                            // They accepted! Add to my friends if not already there
+                            if (!friendEmails.includes(request.to)) {
+                                newFriends.push({
+                                    email: request.to,
+                                    showMyEmail: request.showMyEmail,
+                                    showTheirEmail: acceptedByThem.showMyEmail,
+                                    timestamp: Date.now()
+                                });
+                                friendEmails.push(request.to);
+                                needsUpdate = true;
+                            }
+                        } else {
+                            // Still pending
+                            updatedSentRequests.push(request);
+                        }
+                    }
+                }
+                
+                // Check for new received requests from people who sent requests
+                for (const receivedReq of receivedRequests) {
+                    const theirDoc = await getDoc(doc(db, 'users', receivedReq.from));
+                    if (theirDoc.exists()) {
+                        const theirSentRequests = theirDoc.data()?.friend_requests_sent || [];
+                        const stillPending = theirSentRequests.find(r => r.to === currentUser.email);
+                        
+                        if (stillPending) {
+                            // Request still exists
+                            updatedReceivedRequests.push(receivedReq);
+                        } else {
+                            // They cancelled or something, remove it
+                            needsUpdate = true;
+                        }
+                    }
+                }
+                
+                // Scan all users for new incoming requests
+                const allUsersSnapshot = await getDocs(collection(db, 'users'));
+                const currentReceivedEmails = receivedRequests.map(r => r.from);
+                
+                for (const userDoc of allUsersSnapshot.docs) {
+                    if (userDoc.id === currentUser.email) continue;
+                    
+                    const theirSentRequests = userDoc.data()?.friend_requests_sent || [];
+                    const requestToMe = theirSentRequests.find(r => r.to === currentUser.email);
+                    
+                    if (requestToMe && !currentReceivedEmails.includes(userDoc.id)) {
+                        // New request found!
+                        updatedReceivedRequests.push({
+                            from: userDoc.id,
+                            showTheirEmail: requestToMe.showMyEmail,
+                            timestamp: requestToMe.timestamp
+                        });
+                        needsUpdate = true;
+                    }
+                }
+                
+                if (needsUpdate) {
+                    await updateDoc(myRef, {
+                        friend_requests_sent: updatedSentRequests,
+                        friend_requests_received: updatedReceivedRequests,
+                        friends: newFriends
+                    });
+                    console.log('Friend requests synced');
+                }
+            } catch (error) {
+                console.error('Error syncing friend requests:', error);
+            }
+        }
+
+        onAuthStateChanged(auth, async (user) => {
             currentUser = user;
             if (user) {
                 const q = query(collection(db, "users"), where("email", "==", user.email));
-                getDocs(q).then(snap => {
+                getDocs(q).then(async snap => {
                     if (!snap.empty) {
                         mcAccount = snap.docs[0].data();
                     } else {
@@ -944,6 +1732,9 @@
                     }
                     updateAuthUI(); // Call updateAuthUI here
                     updateUI(); // Call updateUI for general elements
+                    
+                    // Sync friend requests
+                    await syncFriendRequests();
                 });
             } else {
                 mcAccount = null;
@@ -953,6 +1744,60 @@
         });
 
         function log(msg) { console.log(`[F34 Hub] ${msg}`); }
+
+        // Custom confirm dialog
+        function customConfirm(message, title = 'Confirm') {
+            return new Promise((resolve) => {
+                const modal = document.getElementById('custom-confirm-modal');
+                const titleEl = document.getElementById('confirm-title');
+                const messageEl = document.getElementById('confirm-message');
+                const okBtn = document.getElementById('confirm-ok');
+                const cancelBtn = document.getElementById('confirm-cancel');
+                
+                titleEl.textContent = title;
+                messageEl.textContent = message;
+                modal.classList.remove('hidden');
+                
+                const handleOk = () => {
+                    modal.classList.add('hidden');
+                    okBtn.removeEventListener('click', handleOk);
+                    cancelBtn.removeEventListener('click', handleCancel);
+                    resolve(true);
+                };
+                
+                const handleCancel = () => {
+                    modal.classList.add('hidden');
+                    okBtn.removeEventListener('click', handleOk);
+                    cancelBtn.removeEventListener('click', handleCancel);
+                    resolve(false);
+                };
+                
+                okBtn.addEventListener('click', handleOk);
+                cancelBtn.addEventListener('click', handleCancel);
+            });
+        }
+
+        // Custom alert dialog
+        function customAlert(message, title = 'Notice') {
+            return new Promise((resolve) => {
+                const modal = document.getElementById('custom-alert-modal');
+                const titleEl = document.getElementById('alert-title');
+                const messageEl = document.getElementById('alert-message');
+                const okBtn = document.getElementById('alert-ok');
+                
+                titleEl.textContent = title;
+                messageEl.textContent = message;
+                modal.classList.remove('hidden');
+                
+                const handleOk = () => {
+                    modal.classList.add('hidden');
+                    okBtn.removeEventListener('click', handleOk);
+                    resolve();
+                };
+                
+                okBtn.addEventListener('click', handleOk);
+            });
+        }
 
         window.setLang = (lang) => {
             currentLang = lang;
@@ -968,6 +1813,7 @@
             const loginBtn = document.getElementById('auth-btn-login');
             const userProfile = document.getElementById('user-profile');
             const myConfigsBtn = document.getElementById('my-configs-btn');
+            const friendsBtn = document.getElementById('friends-btn');
             const adminLink = document.getElementById('t-admin-panel');
 
             if (currentUser) {
@@ -981,6 +1827,7 @@
 
                 document.getElementById('auth-btn-logout').onclick = () => signOut(auth);
                 myConfigsBtn.classList.remove('hidden');
+                friendsBtn.classList.remove('hidden');
 
                 // Only show Admin Panel for the specific admin email
                 if (currentUser.email === 'gangminseogg13@gmail.com') {
@@ -994,6 +1841,7 @@
                 loginBtn.textContent = t.login;
                 loginBtn.onclick = () => signInWithPopup(auth, provider);
                 myConfigsBtn.classList.add('hidden');
+                friendsBtn.classList.add('hidden');
                 adminLink.classList.add('hidden');
             }
         }
@@ -1009,6 +1857,8 @@
             if (subtitleEl) subtitleEl.textContent = t.subtitle;
             if (loadingEl) loadingEl.textContent = t.loading;
             if (supportEl) supportEl.textContent = t.support;
+            const navDownloadEl = document.getElementById('t-nav-download');
+            if (navDownloadEl) navDownloadEl.textContent = t.navDownload;
             if (myConfigsBtn) myConfigsBtn.textContent = t.myConfigs;
             if (adminLink) adminLink.textContent = t.adminPanel;
 
@@ -1035,6 +1885,413 @@
             document.getElementById('profile-modal').classList.remove('hidden');
             document.body.style.overflow = 'hidden';
         };
+
+        window.openFriendsModal = () => {
+            if (!currentUser) return;
+            document.getElementById('friends-modal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+            switchFriendsTab('friends');
+        };
+
+        window.closeFriendsModal = () => {
+            document.getElementById('friends-modal').classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        };
+
+        window.switchFriendsTab = (tab) => {
+            // Update tabs
+            ['friends', 'requests', 'find'].forEach(t => {
+                const tabBtn = document.getElementById(`friends-tab-${t}`);
+                const content = document.getElementById(`friends-content-${t}`);
+                if (t === tab) {
+                    tabBtn.classList.add('border-blue-500', 'text-blue-400');
+                    tabBtn.classList.remove('border-transparent', 'text-slate-500');
+                    content.classList.remove('hidden');
+                } else {
+                    tabBtn.classList.remove('border-blue-500', 'text-blue-400');
+                    tabBtn.classList.add('border-transparent', 'text-slate-500');
+                    content.classList.add('hidden');
+                }
+            });
+
+            // Load content
+            if (tab === 'friends') loadFriends();
+            else if (tab === 'requests') loadRequests();
+            else if (tab === 'find') loadAllUsers();
+        };
+
+        let usersCache = {}; // Store users with temporary IDs
+
+        window.sendFriendRequest = async (userId) => {
+            if (!currentUser) return;
+            
+            const toEmail = usersCache[userId];
+            if (!toEmail) return;
+            
+            // Show email visibility dialog
+            const showEmail = await customConfirm('Do you want to show your email to this user?', 'Email Visibility');
+            
+            try {
+                const myRef = doc(db, 'users', currentUser.email);
+                const myData = await getDoc(myRef);
+                
+                const mySentRequests = myData.data()?.friend_requests_sent || [];
+                
+                // Add to my sent requests only
+                await updateDoc(myRef, {
+                    friend_requests_sent: [...mySentRequests, {
+                        to: toEmail,
+                        showMyEmail: showEmail,
+                        timestamp: Date.now()
+                    }]
+                });
+                
+                await customAlert('Friend request sent!', 'Success');
+                loadAllUsers();
+            } catch (error) {
+                console.error('Error sending request:', error);
+                await customAlert('Failed to send friend request', 'Error');
+            }
+        };
+
+        window.acceptFriendRequest = async (userId, showMyEmailToThem) => {
+            if (!currentUser) return;
+            
+            const fromEmail = usersCache[userId];
+            if (!fromEmail) return;
+            
+            // Ask if they want to show their email
+            const showEmail = await customConfirm('Do you want to show your email to this user?', 'Email Visibility');
+            
+            try {
+                const myRef = doc(db, 'users', currentUser.email);
+                const myData = await getDoc(myRef);
+                
+                // Add to my friends list only
+                const myFriends = myData.data()?.friends || [];
+                
+                await updateDoc(myRef, {
+                    friends: [...myFriends, {
+                        email: fromEmail,
+                        showMyEmail: showEmail,
+                        showTheirEmail: showMyEmailToThem,
+                        timestamp: Date.now()
+                    }],
+                    friend_requests_received: (myData.data()?.friend_requests_received || []).filter(r => r.from !== fromEmail)
+                });
+                
+                await customAlert('Friend request accepted!', 'Success');
+                loadRequests();
+                loadFriends();
+            } catch (error) {
+                console.error('Error accepting request:', error);
+                alert('Failed to accept friend request');
+            }
+        };
+
+        window.declineFriendRequest = async (userId) => {
+            if (!currentUser) return;
+            
+            const fromEmail = usersCache[userId];
+            if (!fromEmail) return;
+            
+            if (!await customConfirm('Decline this friend request?', 'Confirm')) return;
+            
+            try {
+                const myRef = doc(db, 'users', currentUser.email);
+                const myData = await getDoc(myRef);
+                
+                await updateDoc(myRef, {
+                    friend_requests_received: (myData.data()?.friend_requests_received || []).filter(r => r.from !== fromEmail)
+                });
+                
+                await customAlert('Friend request declined', 'Success');
+                loadRequests();
+            } catch (error) {
+                console.error('Error declining request:', error);
+                alert('Failed to decline friend request');
+            }
+        };
+
+        window.removeFriend = async (userId) => {
+            if (!currentUser) return;
+            
+            const friendEmail = usersCache[userId];
+            if (!friendEmail) return;
+            
+            if (!await customConfirm('Remove this friend?', 'Confirm')) return;
+
+            try {
+                const myRef = doc(db, 'users', currentUser.email);
+                const myData = await getDoc(myRef);
+                
+                await updateDoc(myRef, {
+                    friends: (myData.data()?.friends || []).filter(f => f.email !== friendEmail)
+                });
+
+                await customAlert('Friend removed', 'Success');
+                loadFriends();
+            } catch (error) {
+                console.error('Error removing friend:', error);
+                alert('Failed to remove friend');
+            }
+        };
+
+        async function loadFriends() {
+            if (!currentUser) return;
+            
+            const container = document.getElementById('friends-list-container');
+            container.innerHTML = '<div class="text-slate-500 text-center py-8">Loading...</div>';
+
+            try {
+                const myData = await getDoc(doc(db, 'users', currentUser.email));
+                const friends = myData.data()?.friends || [];
+
+                if (friends.length === 0) {
+                    container.innerHTML = '<div class="text-slate-500 text-center py-8">No friends yet. Find users to add!</div>';
+                    return;
+                }
+
+                container.innerHTML = '';
+                let index = 0;
+                for (const friend of friends) {
+                    try {
+                        const userId = 'friend_' + index++;
+                        usersCache[userId] = friend.email;
+                        
+                        const friendDoc = await getDoc(doc(db, 'users', friend.email));
+                        if (friendDoc.exists()) {
+                            const friendData = friendDoc.data();
+                            const mcName = friendData.mc_name || 'Unknown';
+                            const showEmail = friend.showTheirEmail;
+                            
+                            const friendCard = document.createElement('div');
+                            friendCard.className = 'glass p-4 flex items-center justify-between border border-white/5';
+                            friendCard.innerHTML = `
+                                <div class="flex items-center gap-3">
+                                    <img src="https://mc-heads.net/avatar/${mcName}/32" class="w-8 h-8 rounded-lg">
+                                    <div>
+                                        <div class="font-bold">${mcName}</div>
+                                        <div class="text-xs text-slate-500">${showEmail ? friend.email : 'Email hidden'}</div>
+                                    </div>
+                                </div>
+                                <button onclick="removeFriend('${userId}')" 
+                                    class="p-2 text-red-400 hover:bg-red-400/10 rounded-lg transition-colors">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                    </svg>
+                                </button>
+                            `;
+                            container.appendChild(friendCard);
+                        }
+                    } catch (err) {
+                        console.error('Error loading friend:', err);
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading friends:', error);
+                container.innerHTML = '<div class="text-red-400 text-center py-8">Failed to load friends</div>';
+            }
+        }
+
+        async function loadRequests() {
+            if (!currentUser) return;
+            
+            const container = document.getElementById('requests-list-container');
+            const countBadge = document.getElementById('requests-count');
+            container.innerHTML = '<div class="text-slate-500 text-center py-8">Loading...</div>';
+
+            try {
+                const myData = await getDoc(doc(db, 'users', currentUser.email));
+                const received = myData.data()?.friend_requests_received || [];
+                const sent = myData.data()?.friend_requests_sent || [];
+
+                if (received.length > 0) {
+                    countBadge.textContent = received.length;
+                    countBadge.classList.remove('hidden');
+                } else {
+                    countBadge.classList.add('hidden');
+                }
+
+                if (received.length === 0 && sent.length === 0) {
+                    container.innerHTML = '<div class="text-slate-500 text-center py-8">No friend requests</div>';
+                    return;
+                }
+
+                container.innerHTML = '';
+                
+                // Received requests
+                if (received.length > 0) {
+                    const receivedTitle = document.createElement('h4');
+                    receivedTitle.className = 'text-sm font-bold text-slate-400 mb-3';
+                    receivedTitle.textContent = 'Received Requests';
+                    container.appendChild(receivedTitle);
+                }
+                
+                let index = 0;
+                for (const request of received) {
+                    try {
+                        const userId = 'req_recv_' + index++;
+                        usersCache[userId] = request.from;
+                        
+                        const userDoc = await getDoc(doc(db, 'users', request.from));
+                        if (userDoc.exists()) {
+                            const userData = userDoc.data();
+                            const mcName = userData.mc_name || 'Unknown';
+                            const showEmail = request.showTheirEmail;
+                            
+                            const card = document.createElement('div');
+                            card.className = 'glass p-4 flex items-center justify-between border border-white/5';
+                            card.innerHTML = `
+                                <div class="flex items-center gap-3">
+                                    <img src="https://mc-heads.net/avatar/${mcName}/32" class="w-8 h-8 rounded-lg">
+                                    <div>
+                                        <div class="font-bold">${mcName}</div>
+                                        <div class="text-xs text-slate-500">${showEmail ? request.from : 'Email hidden by user'}</div>
+                                    </div>
+                                </div>
+                                <div class="flex gap-2">
+                                    <button onclick="acceptFriendRequest('${userId}', ${request.showTheirEmail})" 
+                                        class="px-4 py-2 bg-green-600 rounded-lg font-bold hover:bg-green-500 transition-colors text-sm">
+                                        Accept
+                                    </button>
+                                    <button onclick="declineFriendRequest('${userId}')" 
+                                        class="px-4 py-2 bg-red-600 rounded-lg font-bold hover:bg-red-500 transition-colors text-sm">
+                                        Decline
+                                    </button>
+                                </div>
+                            `;
+                            container.appendChild(card);
+                        }
+                    } catch (err) {
+                        console.error('Error loading request:', err);
+                    }
+                }
+                
+                // Sent requests
+                if (sent.length > 0) {
+                    const sentTitle = document.createElement('h4');
+                    sentTitle.className = 'text-sm font-bold text-slate-400 mb-3 mt-6';
+                    sentTitle.textContent = 'Sent Requests';
+                    container.appendChild(sentTitle);
+                    
+                    for (const request of sent) {
+                        try {
+                            const userDoc = await getDoc(doc(db, 'users', request.to));
+                            if (userDoc.exists()) {
+                                const userData = userDoc.data();
+                                const mcName = userData.mc_name || 'Unknown';
+                                
+                                const card = document.createElement('div');
+                                card.className = 'glass p-4 flex items-center justify-between border border-white/5';
+                                card.innerHTML = `
+                                    <div class="flex items-center gap-3">
+                                        <img src="https://mc-heads.net/avatar/${mcName}/32" class="w-8 h-8 rounded-lg">
+                                        <div>
+                                            <div class="font-bold">${mcName}</div>
+                                            <div class="text-xs text-slate-500">Request pending...</div>
+                                        </div>
+                                    </div>
+                                    <div class="text-yellow-400 text-sm font-bold">Pending</div>
+                                `;
+                                container.appendChild(card);
+                            }
+                        } catch (err) {
+                            console.error('Error loading sent request:', err);
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading requests:', error);
+                container.innerHTML = '<div class="text-red-400 text-center py-8">Failed to load requests</div>';
+            }
+        }
+
+        async function loadAllUsers() {
+            if (!currentUser) return;
+            
+            const container = document.getElementById('users-list-container');
+            const searchInput = document.getElementById('user-search-input');
+            
+            container.innerHTML = '<div class="text-slate-500 text-center py-8">Loading...</div>';
+
+            try {
+                const usersSnapshot = await getDocs(collection(db, 'users'));
+                const myData = await getDoc(doc(db, 'users', currentUser.email));
+                const myFriends = (myData.data()?.friends || []).map(f => f.email);
+                const sentRequests = (myData.data()?.friend_requests_sent || []).map(r => r.to);
+                const receivedRequests = (myData.data()?.friend_requests_received || []).map(r => r.from);
+                
+                let users = [];
+                usersSnapshot.forEach(doc => {
+                    if (doc.id !== currentUser.email) {
+                        users.push({ email: doc.id, ...doc.data() });
+                    }
+                });
+
+                const renderUsers = (filterText = '') => {
+                    const filtered = users.filter(user => {
+                        const searchTerm = filterText.toLowerCase();
+                        const mcName = (user.mc_name || '').toLowerCase();
+                        const email = user.email.toLowerCase();
+                        return mcName.includes(searchTerm) || email.includes(searchTerm);
+                    });
+
+                    container.innerHTML = '';
+                    usersCache = {}; // Clear cache
+                    
+                    if (filtered.length === 0) {
+                        container.innerHTML = '<div class="text-slate-500 text-center py-8">No users found</div>';
+                        return;
+                    }
+
+                    filtered.forEach((user, index) => {
+                        const userId = 'user_' + index;
+                        usersCache[userId] = user.email;
+                        
+                        const mcName = user.mc_name || 'Unknown';
+                        const isFriend = myFriends.includes(user.email);
+                        const requestSent = sentRequests.includes(user.email);
+                        const requestReceived = receivedRequests.includes(user.email);
+                        
+                        let statusHtml = '';
+                        if (isFriend) {
+                            statusHtml = '<div class="text-green-400 text-sm font-bold">Friends</div>';
+                        } else if (requestSent) {
+                            statusHtml = '<div class="text-yellow-400 text-sm font-bold">Request Sent</div>';
+                        } else if (requestReceived) {
+                            statusHtml = '<div class="text-blue-400 text-sm font-bold">Request Received</div>';
+                        } else {
+                            statusHtml = `<button onclick="sendFriendRequest('${userId}')" 
+                                class="px-4 py-2 bg-blue-600 rounded-lg font-bold hover:bg-blue-500 transition-colors text-sm">
+                                Add Friend
+                            </button>`;
+                        }
+                        
+                        const card = document.createElement('div');
+                        card.className = 'glass p-4 flex items-center justify-between border border-white/5';
+                        card.innerHTML = `
+                            <div class="flex items-center gap-3">
+                                <img src="https://mc-heads.net/avatar/${mcName}/32" class="w-8 h-8 rounded-lg">
+                                <div>
+                                    <div class="font-bold">${mcName}</div>
+                                    <div class="text-xs text-slate-500">${isFriend ? user.email : 'Email hidden'}</div>
+                                </div>
+                            </div>
+                            ${statusHtml}
+                        `;
+                        container.appendChild(card);
+                    });
+                };
+
+                searchInput.oninput = (e) => renderUsers(e.target.value);
+                renderUsers();
+                
+            } catch (error) {
+                console.error('Error loading users:', error);
+                container.innerHTML = '<div class="text-red-400 text-center py-8">Failed to load users</div>';
+            }
+        }
 
         window.closeProfileModal = () => {
             document.getElementById('profile-modal').classList.add('hidden');
@@ -1065,16 +2322,68 @@
             const t = i18n[currentLang] || i18n.en;
             const configList = document.getElementById('config-list');
             if (!configList) return;
+            
+            // Clear background from config-list
+            configList.style.backgroundImage = '';
 
-            const filtered = allConfigs.filter(c => currentCategory === 'All' || c.category === currentCategory);
+            const filtered = allConfigs.filter(c => {
+                if (currentCategory === 'All') return true;
+                return normalizeCategoryAlias(c.category) === normalizeCategoryAlias(currentCategory);
+            });
 
             if (filtered.length === 0) {
                 configList.innerHTML = `<div class="col-span-full glass p-20 text-center text-xl text-slate-400">${currentCategory === 'All' ? t.noConfigs : t.noResults}</div>`;
                 return;
             }
 
-            configList.innerHTML = filtered.map(data => `
-                <div class="glass p-8 card-hover flex flex-col justify-between animate-fade-in">
+            configList.innerHTML = filtered.map(data => {
+                // Add class for cards with category-based backgrounds (normalized compare)
+                let cardClass = '';
+                const catNorm = normalizeCategoryAlias(data.category);
+                if (catNorm === normalizeCategoryAlias('General')) {
+                    cardClass = 'card-with-bg';
+                } else if (catNorm === normalizeCategoryAlias('Convenience')) {
+                    cardClass = 'card-with-bg-convenience';
+                } else if (catNorm === normalizeCategoryAlias('Food')) {
+                    cardClass = 'card-with-bg-food';
+                } else if (catNorm === normalizeCategoryAlias('World Gen')) {
+                    cardClass = 'card-with-bg-worldgen';
+                } else if (catNorm === normalizeCategoryAlias('Adventure')) {
+                    cardClass = 'card-with-bg-adventure';
+                } else if (catNorm === normalizeCategoryAlias('Transportation')) {
+                    cardClass = 'card-with-bg-transportation';
+                } else if (catNorm === normalizeCategoryAlias('Horror')) {
+                    cardClass = 'card-with-bg-horror';
+                } else if (catNorm === normalizeCategoryAlias('Decoration')) {
+                    cardClass = 'card-with-bg-decoration';
+                } else if (catNorm === normalizeCategoryAlias('Economy')) {
+                    cardClass = 'card-with-bg-economy';
+                } else if (catNorm === normalizeCategoryAlias('Game Mechanics')) {
+                    cardClass = 'card-with-bg-gamemechanics';
+                } else if (catNorm === normalizeCategoryAlias('Magic')) {
+                    cardClass = 'card-with-bg-magic';
+                } else if (catNorm === normalizeCategoryAlias('Management')) {
+                    cardClass = 'card-with-bg-management';
+                } else if (catNorm === normalizeCategoryAlias('Minigame')) {
+                    cardClass = 'card-with-bg-minigame';
+                } else if (catNorm === normalizeCategoryAlias('Library')) {
+                    cardClass = 'card-with-bg-library';
+                } else if (catNorm === normalizeCategoryAlias('Equipment')) {
+                    cardClass = 'card-with-bg-equipment';
+                } else if (catNorm === normalizeCategoryAlias('Mobs')) {
+                    cardClass = 'card-with-bg-mobs';
+                } else if (catNorm === normalizeCategoryAlias('Optimization')) {
+                    cardClass = 'card-with-bg-optimization';
+                } else if (catNorm === normalizeCategoryAlias('Social')) {
+                    cardClass = 'card-with-bg-social';
+                } else if (catNorm === normalizeCategoryAlias('Storage')) {
+                    cardClass = 'card-with-bg-storage';
+                } else if (catNorm === normalizeCategoryAlias('Technology')) {
+                    cardClass = 'card-with-bg-technology';
+                }
+                
+                return `
+                <div class="glass p-8 card-hover flex flex-col justify-between animate-fade-in ${cardClass}">
                     <div>
                         <div class="flex justify-between items-start mb-6">
                             <div>
@@ -1094,7 +2403,7 @@
                         <button onclick="downloadConfig('${data.id}')" class="btn-download flex-1 py-4 rounded-2xl font-bold text-sm text-white transition-all">${currentUser ? t.download : t.loginToDownload}</button>
                     </div>
                 </div>
-            `).join('');
+            `}).join('');
         }
 
         async function fetchConfigsREST() {
@@ -1214,7 +2523,10 @@
             document.getElementById('support-modal').classList.remove('hidden');
         };
 
-        window.closeSupportModal = () => document.getElementById('support-modal').classList.add('hidden');
+        window.closeSupportModal = () => {
+            document.getElementById('support-modal').classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        };
 
         window.submitTicket = async () => {
             const t = i18n[currentLang] || i18n.en;
@@ -1306,6 +2618,8 @@
 
         try {
             setupDataFetching();
+            applyThemeMode();
+            renderCategories(); // Render categories on load
             updateAuthUI(); // Initial call for auth-related UI
             updateUI(); // Initial call for general UI elements
         } catch (e) { log("Init Error: " + e.message); }
